@@ -1,0 +1,29 @@
+# Automatically normalize line endings for all text files
+* text=auto
+
+# Ensure specific file types always use LF line endings
+*.css text eol=lf
+*.js text eol=lf
+*.html text eol=lf
+*.svg text eol=lf
+*.md text eol=lf
+*.txt text eol=lf
+*.json text eol=lf
+*.xml text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# Treat binary files as binary to prevent line ending conversion
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.woff binary
+*.woff2 binary
+*.eot binary
+*.ttf binary
+*.otf binary
+*.ico binary
+
+# Exclude LICENSE and other sensitive text files from conversion
+LICENSE text eol=lf
