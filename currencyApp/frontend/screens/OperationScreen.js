@@ -1,48 +1,78 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  StyleSheet,
+  Alert,
+  Keyboard,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
 import { Dimensions } from 'react-native';
 
 const OperationScreen = ({ route, navigation }) => {
-  const { fromCurrency, toCurrency, rate, type } = route.params; // rate is either 'bid' or 'ask'
-  const [amount, setAmount] = useState('');
-  const [convertedAmount, setConvertedAmount] = useState(null);
+  const { fromCurrency, toCurrency, rate, type, exchangeRate } = route.params;
+  const [amount1, setAmount1] = useState('');
+  const [amount2, setAmount2] = useState('');
   const [chartData, setChartData] = useState(null);
 
+  // Convert input value 1 to input value 2 or vice versa
+  const handleAmount1Change = (value) => {
+    setAmount1(value);
+    if (value) {
+      const convertedValue = parseFloat(value) * parseFloat(exchangeRate);
+      setAmount2(convertedValue.toFixed(2));
+    } else {
+      setAmount2('');
+    }
+  };
+
+  const handleAmount2Change = (value) => {
+    setAmount2(value);
+    if (value) {
+      const convertedValue = parseFloat(value) / parseFloat(exchangeRate);
+      setAmount1(convertedValue.toFixed(2));
+    } else {
+      setAmount1('');
+    }
+  };
+
   const handleConversion = () => {
-    const numericAmount = parseFloat(amount);
-    if (isNaN(numericAmount) || numericAmount <= 0) {
-      Alert.alert('Invalid amount', 'Please enter a valid number greater than 0.');
+    const numericAmount1 = parseFloat(amount1);
+    const numericAmount2 = parseFloat(amount2);
+
+    if (isNaN(numericAmount1) || numericAmount1 <= 0 || isNaN(numericAmount2) || numericAmount2 <= 0) {
+      Alert.alert('Invalid amount', 'Please enter valid numbers greater than 0.');
       return;
     }
 
-    // Calculate the converted amount
-    const result = numericAmount * rate; // This rate is either 'bid' or 'ask' number value
-    setConvertedAmount(result);
+    // Logic to update the balances after conversion (you will need to implement this part)
+    Alert.alert(
+      'Success!',
+      `You completed an exchange from ${numericAmount1.toFixed(2)} ${fromCurrency} to ${numericAmount2.toFixed(2)} ${toCurrency}.`
+    );
 
-    // Optionally, redirect or save the operation here
-    Alert.alert('Conversion Successful', `You ${type} ${numericAmount} ${fromCurrency} to ${result.toFixed(2)} ${toCurrency}`);
+    // Optionally, here you should update the user’s balance in your database
+    // Example: updateBalance(numericAmount1, numericAmount2);
   };
 
   const fetchChartData = async () => {
     try {
-      const response = await fetch(`https://api.nbp.pl/api/exchangerates/rates/c/${fromCurrency.toLowerCase()}/last/10/?format=json`);
-      
-      // Log response status to check if it's successful (200 OK)
-      console.log('Response Status:', response.status);
+      const response = await fetch(
+        `https://api.nbp.pl/api/exchangerates/rates/c/${(type === 'SELL' ? fromCurrency : toCurrency).toLowerCase()}/last/10/?format=json`
+      );
 
-      // Read the response body as text (instead of immediately trying to parse it as JSON)
-      const responseText = await response.text();
-      console.log('Response Text:', responseText); // Log the raw response body
-
-      // If the response status is OK, parse it as JSON
-      if (response.status === 200) {
+      if (response.ok) {
+        const responseText = await response.text();
         const data = JSON.parse(responseText);
-
-        const values = data.rates.map(item => item[rate]); // Use 'bid' or 'ask' based on passed rate
+        const values = data.rates.map((item) => (type === 'SELL' ? item.ask : item.bid));
 
         setChartData({
-          labels: Array(10).fill(''), // Empty labels to avoid showing dates
+          labels: Array(10).fill(''),
           datasets: [
             {
               data: values,
@@ -51,7 +81,7 @@ const OperationScreen = ({ route, navigation }) => {
           ],
         });
       } else {
-        console.error('Error: Invalid response status', response.status);
+        console.error('API call failed with status:', response.status);
       }
     } catch (error) {
       console.error('Error fetching chart data:', error);
@@ -60,61 +90,82 @@ const OperationScreen = ({ route, navigation }) => {
 
   useEffect(() => {
     fetchChartData();
-  }, [fromCurrency, rate]);
+  }, [fromCurrency, rate, type]);
 
   return (
-    <View style={styles.container}>
-      {/* Place the chart above other elements */}
-      {chartData && (
-        <LineChart
-          data={chartData}
-          width={Dimensions.get('window').width - 20}
-          height={220}
-          yAxisSuffix="zł"
-          chartConfig={{
-            backgroundColor: '#fff',
-            backgroundGradientFrom: '#fff',
-            backgroundGradientTo: '#fff',
-            decimalPlaces: 2,
-            color: (opacity = 1) => `rgba(0, 123, 255, ${opacity})`,
-            labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-            style: {
-              borderRadius: 16,
-            },
-          }}
-          bezier
-        />
-      )}
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={{ flex: 1 }}
+    >
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.container}>
+          {chartData && (
+            <LineChart
+              data={chartData}
+              width={Dimensions.get('window').width - 20}
+              height={220}
+              yAxisSuffix="zł"
+              chartConfig={{
+                backgroundColor: '#fff',
+                backgroundGradientFrom: '#fff',
+                backgroundGradientTo: '#fff',
+                decimalPlaces: 2,
+                color: (opacity = 1) => `rgba(0, 123, 255, ${opacity})`,
+                labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                style: {
+                  borderRadius: 16,
+                },
+              }}
+              bezier
+            />
+          )}
 
-      <Text style={styles.title}>Convert {fromCurrency} to {toCurrency}</Text>
-      <Text style={styles.subtitle}>{type} {toCurrency}</Text>
+          <Text style={styles.title}>You {type} {(type === 'SELL' ? fromCurrency : toCurrency)}</Text>
+          <Text style={styles.subtitle}>Enter the amount:</Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder={`Enter amount in ${fromCurrency}`}
-        keyboardType="numeric"
-        value={amount}
-        onChangeText={setAmount}
-      />
+          <TextInput
+            style={styles.input}
+            placeholder={`Enter amount in ${fromCurrency}`}
+            keyboardType="numeric"
+            value={amount1}
+            onChangeText={handleAmount1Change}
+            returnKeyType="done"
+            onSubmitEditing={() => Keyboard.dismiss()}
+          />
 
-      <Button title={`Convert ${type}`} onPress={handleConversion} />
+          <Text style={styles.title}>You will get:</Text>
+          <Text style={styles.subtitle}>Enter the amount:</Text>
 
-      {convertedAmount !== null && (
-        <Text style={styles.result}>
-          {amount} {fromCurrency} = {convertedAmount.toFixed(2)} {toCurrency}
-        </Text>
-      )}
-    </View>
+          <TextInput
+            style={styles.input}
+            placeholder={`Enter amount in ${toCurrency}`}
+            keyboardType="numeric"
+            value={amount2}
+            onChangeText={handleAmount2Change}
+            returnKeyType="done"
+            onSubmitEditing={() => Keyboard.dismiss()}
+          />
+
+          <Button title={`Convert ${type}`} onPress={handleConversion} />
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
+  scrollContainer: {
+    flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    padding: 20,
+  },
+  container: {
+    alignItems: 'center',
+    width: '100%',
   },
   title: {
     fontSize: 24,
@@ -124,7 +175,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 18,
-    marginBottom: 20,
+    marginBottom: 10,
   },
   input: {
     width: '80%',

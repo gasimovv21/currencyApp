@@ -27,12 +27,13 @@ const ExchangeScreen = ({ navigation }) => {
     fetchRates();
   }, []);
 
-  const navigateToOperation = (fromCurrency, toCurrency, rate, type) => {
+  const navigateToOperation = (fromCurrency, toCurrency, rate, type, exchangeRate) => {
     navigation.navigate('Operation', {
       fromCurrency,
       toCurrency,
       rate,
       type,
+      exchangeRate,
     });
   };
 
@@ -48,13 +49,13 @@ const ExchangeScreen = ({ navigation }) => {
           <View style={styles.row}>
             <TouchableOpacity
               style={styles.button}
-              onPress={() => navigateToOperation(currency, 'PLN', 'bid', 'SELL')}
+              onPress={() => navigateToOperation(currency, 'PLN', 'bid', 'SELL', String(exchangeRates[currency].bid))}
             >
               <Text style={styles.buttonText}>SELL {currency}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.button}
-              onPress={() => navigateToOperation('PLN', currency, 'ask', 'BUY')}
+              onPress={() => navigateToOperation('PLN', currency, 'ask', 'BUY', String(exchangeRates[currency].bid))}
             >
               <Text style={styles.buttonText}>BUY {currency}</Text>
             </TouchableOpacity>
