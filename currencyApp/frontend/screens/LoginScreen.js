@@ -22,6 +22,28 @@ const LoginScreen = ({ navigation }) => {
     }
   };
 
+    // const handleLogin = async () => {
+    
+  //   try {
+  //     const response = await fetch('/api/users/', {
+  //       method: 'POST',
+  //       headers: { 'Content-Type': 'application/json' },
+  //       body: JSON.stringify({ username, password }),
+  //     });
+  
+  //     if (response.ok) {
+  //       const data = await response.json();
+  //       if (data) {
+  //         navigation.navigate('Main', { data });
+  //       }
+  //     } else {
+  //       Alert.alert('Login Failed', 'Invalid username or password.');
+  //     }
+  //   } catch (error) {
+  //     Alert.alert('Error:');
+  //   }
+  // };
+
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <View style={styles.container}>
