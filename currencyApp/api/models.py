@@ -45,10 +45,18 @@ class User(models.Model):
         
         if not self.password or self.password.strip() == "":
             raise ValidationError("Password is required.")
-        if not re.match(r'^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$', self.password):
-            raise ValidationError(
-                "Password must be 8-16 characters long and contain at least 1 uppercase letter, 1 special character, and 1 number."
-            )
+        
+        if not (8 <= len(self.password) <= 16):
+            raise ValidationError("Password must be between 8 and 16 characters.")
+        
+        if not re.search(r'[A-Z]', self.password):
+            raise ValidationError("Password must contain at least 1 uppercase letter.")
+        
+        if not re.search(r'\d', self.password):
+            raise ValidationError("Password must contain at least 1 number.")
+        
+        if not re.search(r'[@$!%*?&]', self.password):
+            raise ValidationError("Password must contain at least 1 special character (@, $, !, %, *, ?, &).")
 
         if self.username and self.password:
             if any(word in self.password.lower() for word in self.username.lower().split('_')):
