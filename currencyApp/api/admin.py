@@ -8,12 +8,12 @@ class UserForm(ModelForm):
         model = User
         fields = '__all__'
 
-    def clean(self):
-        cleaned_data = super().clean()
-        try:
-            self.instance.clean()
-        except ValidationError as e:
-            self.add_error(None, e)
+    # def clean(self):
+    #     cleaned_data = super().clean()
+    #     try:
+    #         self.instance.clean()
+    #     except ValidationError as e:
+    #         self.add_error(None, e)
 
 class UserAdmin(admin.ModelAdmin):
     form = UserForm
