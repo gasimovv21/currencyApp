@@ -1,23 +1,44 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, TouchableWithoutFeedback, Keyboard, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, Button, StyleSheet, TouchableWithoutFeedback, Keyboard, ScrollView, Alert } from 'react-native';
 
 const EditProfileScreen = ({ navigation }) => {
-  // Initialize state for each input field
-  const [firstName, setFirstName] = useState('John');
-  const [lastName, setLastName] = useState('Doe');
-  const [email, setEmail] = useState('john.doe@example.com');
-  const [phone, setPhone] = useState('123-456-7890');
+  const userId = 3;
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [createdOn, setCreatedOn] = useState('');
+  const [updatedOn, setUpdatedOn] = useState('');
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch('/api/users/3/', {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        
+        if (!response.ok) throw new Error(`Error: ${response.status}`);
+        const data = await response.json();
+
+        setFirstName(data.first_name);
+        setLastName(data.last_name);
+        setEmail(data.email);
+        setPhone(data.phone_number);
+        setCreatedOn(data.account_created_on);
+        setUpdatedOn(data.updated_on);
+      } catch (error) {
+        console.error(error);
+        Alert.alert("Failed to fetch user data", error.message);
+      }
+    };
+    
+    fetchUserData();
+  }, []);
 
   const onSave = () => {
-    // Handle saving changes (API call can be added here in the future)
-    console.log({
-      firstName,
-      lastName,
-      email,
-      phone,
-      password,
-    });
+    console.log({ firstName, lastName, email, phone, password });
     navigation.goBack();
   };
 
@@ -70,6 +91,20 @@ const EditProfileScreen = ({ navigation }) => {
             secureTextEntry
           />
 
+          <Text style={styles.label}>Account Created On</Text>
+          <TextInput
+            style={[styles.input, styles.readOnly]}
+            value={new Date(createdOn).toLocaleDateString()}
+            editable={false}
+          />
+
+          <Text style={styles.label}>Last Updated On</Text>
+          <TextInput
+            style={[styles.input, styles.readOnly]}
+            value={new Date(updatedOn).toLocaleDateString()}
+            editable={false}
+          />
+
           <View style={styles.buttonContainer}>
             <Button title="Save Changes" onPress={onSave} color="#007AFF" />
           </View>
@@ -115,6 +150,10 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     backgroundColor: '#f9f9f9',
     fontSize: 16,
+  },
+  readOnly: {
+    backgroundColor: '#e9e9e9',
+    color: '#666',
   },
   buttonContainer: {
     marginTop: 20,
