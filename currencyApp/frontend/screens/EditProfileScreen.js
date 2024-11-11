@@ -1,33 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, TouchableWithoutFeedback, Keyboard, ScrollView, Alert } from 'react-native';
+import { View, Text, ScrollView, Alert, StyleSheet } from 'react-native';
 
-const EditProfileScreen = ({ navigation }) => {
-  const userId = 3;
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [password, setPassword] = useState('');
-  const [createdOn, setCreatedOn] = useState('');
-  const [updatedOn, setUpdatedOn] = useState('');
+const EditProfileScreen = () => {
+  const user_id = 3;
+  const [userData, setUserData] = useState(null);
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await fetch('/api/users/3/', {
+        const response = await fetch(`https://api.nbp.pl/api/exchangerates/rates/c/usd/2016-04-04/?format=json`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
         });
         
         if (!response.ok) throw new Error(`Error: ${response.status}`);
         const data = await response.json();
-
-        setFirstName(data.first_name);
-        setLastName(data.last_name);
-        setEmail(data.email);
-        setPhone(data.phone_number);
-        setCreatedOn(data.account_created_on);
-        setUpdatedOn(data.updated_on);
+        setUserData(data);
       } catch (error) {
         console.error(error);
         Alert.alert("Failed to fetch user data", error.message);
@@ -37,80 +25,13 @@ const EditProfileScreen = ({ navigation }) => {
     fetchUserData();
   }, []);
 
-  const onSave = () => {
-    console.log({ firstName, lastName, email, phone, password });
-    navigation.goBack();
-  };
-
   return (
-    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-      <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.header}>Edit Profile</Text>
-        
-        <View style={styles.card}>
-          <Text style={styles.label}>First Name</Text>
-          <TextInput
-            style={styles.input}
-            value={firstName}
-            onChangeText={setFirstName}
-            placeholder="Enter your first name"
-          />
-
-          <Text style={styles.label}>Last Name</Text>
-          <TextInput
-            style={styles.input}
-            value={lastName}
-            onChangeText={setLastName}
-            placeholder="Enter your last name"
-          />
-
-          <Text style={styles.label}>Email</Text>
-          <TextInput
-            style={styles.input}
-            value={email}
-            onChangeText={setEmail}
-            placeholder="Enter your email"
-            keyboardType="email-address"
-          />
-
-          <Text style={styles.label}>Phone</Text>
-          <TextInput
-            style={styles.input}
-            value={phone}
-            onChangeText={setPhone}
-            placeholder="Enter your phone number"
-            keyboardType="phone-pad"
-          />
-
-          <Text style={styles.label}>Password</Text>
-          <TextInput
-            style={styles.input}
-            value={password}
-            onChangeText={setPassword}
-            placeholder="Enter a new password"
-            secureTextEntry
-          />
-
-          <Text style={styles.label}>Account Created On</Text>
-          <TextInput
-            style={[styles.input, styles.readOnly]}
-            value={new Date(createdOn).toLocaleDateString()}
-            editable={false}
-          />
-
-          <Text style={styles.label}>Last Updated On</Text>
-          <TextInput
-            style={[styles.input, styles.readOnly]}
-            value={new Date(updatedOn).toLocaleDateString()}
-            editable={false}
-          />
-
-          <View style={styles.buttonContainer}>
-            <Button title="Save Changes" onPress={onSave} color="#007AFF" />
-          </View>
-        </View>
-      </ScrollView>
-    </TouchableWithoutFeedback>
+    <ScrollView contentContainerStyle={styles.container}>
+      <Text style={styles.header}>User Data</Text>
+      <View style={styles.card}>
+        <Text>{userData ? JSON.stringify(userData, null, 2) : "Loading..."}</Text>
+      </View>
+    </ScrollView>
   );
 };
 
@@ -136,29 +57,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 5,
-  },
-  label: {
-    fontSize: 16,
-    color: '#333',
-    marginBottom: 5,
-    marginTop: 10,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    padding: 10,
-    borderRadius: 5,
-    backgroundColor: '#f9f9f9',
-    fontSize: 16,
-  },
-  readOnly: {
-    backgroundColor: '#e9e9e9',
-    color: '#666',
-  },
-  buttonContainer: {
-    marginTop: 20,
-    borderRadius: 5,
-    overflow: 'hidden',
   },
 });
 
