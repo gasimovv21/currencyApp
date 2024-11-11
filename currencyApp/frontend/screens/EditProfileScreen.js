@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, TouchableWithoutFeedback, Keyboard, ScrollView, Alert } from 'react-native';
+import axios from 'axios';
 
 const EditProfileScreen = ({ navigation }) => {
-  const userId = 3;
+  const userId = 1;
+  const baseURL = 'http://192.168.1.30:8000'; // GO TO POWERSHELL USE IPCONFIG COMMAND AND CHANGE HERE 192.168.1.30 WITH YOUR IPV4
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -14,14 +16,9 @@ const EditProfileScreen = ({ navigation }) => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await fetch('/api/users/3/', {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' },
-        });
+        const response = await axios.get(`${baseURL}/api/users/${userId}/`);
         
-        if (!response.ok) throw new Error(`Error: ${response.status}`);
-        const data = await response.json();
-
+        const data = response.data;
         setFirstName(data.first_name);
         setLastName(data.last_name);
         setEmail(data.email);
@@ -37,9 +34,26 @@ const EditProfileScreen = ({ navigation }) => {
     fetchUserData();
   }, []);
 
-  const onSave = () => {
-    console.log({ firstName, lastName, email, phone, password });
-    navigation.goBack();
+  const onSave = async () => {
+    try {
+      const updatedData = {
+        first_name: firstName,
+        last_name: lastName,
+        email,
+        phone_number: phone,
+        ...(password && { password }), // We update the password only if it is specified
+      };
+
+      await axios.put(`${baseURL}/api/users/${userId}/`, updatedData, {
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      Alert.alert("Success", "Profile updated successfully!");
+      navigation.goBack();
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Failed to update profile", error.message);
+    }
   };
 
   return (
