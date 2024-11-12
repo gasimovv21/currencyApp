@@ -2,7 +2,7 @@ from rest_framework.decorators import api_view
 from .utils import (
     getUsersList, createUser, getUserDetail, updateUser, deleteUser,
     getCurrencyAccounts, createCurrencyAccount, getCurrencyAccountDetail,
-    updateCurrencyAccount, deleteCurrencyAccount
+    updateCurrencyAccount, deleteCurrencyAccount, getUserCurrencyAccounts
 )
 
 @api_view(['GET', 'POST'])
@@ -36,3 +36,7 @@ def getCurrencyAccountView(request, pk):
         return updateCurrencyAccount(request, pk)
     elif request.method == 'DELETE':
         return deleteCurrencyAccount(request, pk)
+
+@api_view(['GET'])
+def getUserCurrencyAccountsView(request, user_id):
+    return getUserCurrencyAccounts(request, user_id)

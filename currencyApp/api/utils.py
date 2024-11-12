@@ -92,3 +92,15 @@ def deleteCurrencyAccount(request, pk):
 
     account.delete()
     return Response({"message": "Currency account deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+
+
+def getUserCurrencyAccounts(request, user_id):
+    try:
+        accounts = UserCurrencyAccount.objects.filter(user_id=user_id)
+        if not accounts.exists():
+            return Response({"error": "No accounts found for this user"}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = UserCurrencyAccountSerializer(accounts, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except User.DoesNotExist:
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
