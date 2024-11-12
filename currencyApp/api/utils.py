@@ -1,7 +1,7 @@
 from rest_framework.response import Response
 from rest_framework import status
-from .models import User
-from .serializers import UserSerializer
+from .models import User, UserCurrencyAccount
+from .serializers import UserSerializer, UserCurrencyAccountSerializer
 
 def getUsersList(request):
     users = User.objects.all()
@@ -44,3 +44,47 @@ def deleteUser(request, pk):
     
     user.delete()
     return Response({"message": "User deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+
+# Functions for UserCurrencyAccount
+
+def getCurrencyAccounts(request):
+    accounts = UserCurrencyAccount.objects.all()
+    serializer = UserCurrencyAccountSerializer(accounts, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+def createCurrencyAccount(request):
+    serializer = UserCurrencyAccountSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+def getCurrencyAccountDetail(request, pk):
+    try:
+        account = UserCurrencyAccount.objects.get(pk=pk)
+    except UserCurrencyAccount.DoesNotExist:
+        return Response({"error": "Currency account not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = UserCurrencyAccountSerializer(account)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+def updateCurrencyAccount(request, pk):
+    try:
+        account = UserCurrencyAccount.objects.get(pk=pk)
+    except UserCurrencyAccount.DoesNotExist:
+        return Response({"error": "Currency account not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = UserCurrencyAccountSerializer(account, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+def deleteCurrencyAccount(request, pk):
+    try:
+        account = UserCurrencyAccount.objects.get(pk=pk)
+    except UserCurrencyAccount.DoesNotExist:
+        return Response({"error": "Currency account not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    account.delete()
+    return Response({"message": "Currency account deleted successfully"}, status=status.HTTP_204_NO_CONTENT)

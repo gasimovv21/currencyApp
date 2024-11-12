@@ -66,3 +66,40 @@ class User(models.Model):
             email_username = self.email.split('@')[0]
             if email_username in self.password:
                 raise ValidationError("Email and password must not be similar.")
+
+
+class UserCurrencyAccount(models.Model):
+    CURRENCY_CHOICES = [
+        ('USD', 'US Dollar'),
+        ('EUR', 'Euro'),
+        ('JPY', 'Japanese Yen'),
+        ('GBP', 'British Pound'),
+        ('AUD', 'Australian Dollar'),
+        ('CAD', 'Canadian Dollar'),
+        ('CHF', 'Swiss Franc'),
+        ('CNY', 'Chinese Yuan'),
+        ('SEK', 'Swedish Krona'),
+        ('NZD', 'New Zealand Dollar'),
+        ('MXN', 'Mexican Peso'),
+        ('SGD', 'Singapore Dollar'),
+        ('HKD', 'Hong Kong Dollar'),
+        ('NOK', 'Norwegian Krone'),
+        ('KRW', 'South Korean Won'),
+    ]
+
+    account_id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='currency_accounts')
+    currency_code = models.CharField(max_length=3, choices=CURRENCY_CHOICES)
+    balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    is_active = models.BooleanField(default=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.get_currency_code_display()} Account for {self.user.username}"  # get_currency_code_display() возвращает читабельное имя
+
+
+    def clean(self):
+        if not re.match(r'^[A-Z]{3}$', self.currency_code):
+            raise ValidationError("Currency code must be a valid ISO 4217 code (e.g., USD, EUR, PLN).")
+        if self.balance < 0:
+            raise ValidationError("Balance cannot be negative.")

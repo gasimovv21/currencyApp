@@ -3,8 +3,8 @@ import { View, Text, TextInput, Button, StyleSheet, TouchableWithoutFeedback, Ke
 import axios from 'axios';
 
 const EditProfileScreen = ({ navigation }) => {
-  const userId = 1;
-  const baseURL = 'http://192.168.1.30:8000'; // GO TO POWERSHELL USE IPCONFIG COMMAND AND CHANGE HERE 192.168.1.30 WITH YOUR IPV4
+  const userId = 1; // Replace with dynamic user ID if necessary
+  const baseURL = 'http://192.168.1.30:8000'; // Replace with your actual IP address
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -12,25 +12,28 @@ const EditProfileScreen = ({ navigation }) => {
   const [password, setPassword] = useState('');
   const [createdOn, setCreatedOn] = useState('');
   const [updatedOn, setUpdatedOn] = useState('');
+  const [loading, setLoading] = useState(true); // Loading state
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         const response = await axios.get(`${baseURL}/api/users/${userId}/`);
-        
         const data = response.data;
+
         setFirstName(data.first_name);
         setLastName(data.last_name);
         setEmail(data.email);
         setPhone(data.phone_number);
         setCreatedOn(data.account_created_on);
         setUpdatedOn(data.updated_on);
+        setLoading(false);
       } catch (error) {
         console.error(error);
-        Alert.alert("Failed to fetch user data", error.message);
+        Alert.alert('Error', 'Failed to fetch user data');
+        setLoading(false);
       }
     };
-    
+
     fetchUserData();
   }, []);
 
@@ -41,28 +44,71 @@ const EditProfileScreen = ({ navigation }) => {
         last_name: lastName,
         email,
         phone_number: phone,
-        ...(password && { password }), // We update the password only if it is specified
+        ...(password && { password }), // Only include password if provided
       };
 
       await axios.put(`${baseURL}/api/users/${userId}/`, updatedData, {
         headers: { 'Content-Type': 'application/json' },
       });
 
-      Alert.alert("Success", "Profile updated successfully!");
+      Alert.alert('Success', 'Profile updated successfully!');
       navigation.goBack();
     } catch (error) {
       console.error(error);
-      Alert.alert("Failed to update profile", error.message);
+      Alert.alert('Error', 'Failed to update profile');
     }
   };
 
-  return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.header}>User Data</Text>
-      <View style={styles.card}>
-        <Text>{userData ? JSON.stringify(userData, null, 2) : "Loading..."}</Text>
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text>Loading...</Text>
       </View>
-    </ScrollView>
+    );
+  }
+
+  return (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <ScrollView contentContainerStyle={styles.container}>
+        <Text style={styles.header}>Edit Profile</Text>
+
+        <TextInput
+          style={styles.input}
+          placeholder="First Name"
+          value={firstName}
+          onChangeText={setFirstName}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Last Name"
+          value={lastName}
+          onChangeText={setLastName}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Email"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Phone Number"
+          value={phone}
+          onChangeText={setPhone}
+          keyboardType="phone-pad"
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Password (optional)"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+        />
+
+        <Button title="Save Changes" onPress={onSave} />
+      </ScrollView>
+    </TouchableWithoutFeedback>
   );
 };
 
@@ -79,15 +125,20 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     color: '#333',
   },
-  card: {
+  input: {
+    height: 50,
     backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 5,
+    borderRadius: 8,
+    paddingHorizontal: 15,
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: '#ddd',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f2f2f2',
   },
 });
 
