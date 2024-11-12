@@ -1,25 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableWithoutFeedback, Keyboard } from 'react-native';
-import testData from '../testData.json';
 
 const LoginScreen = ({ navigation }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
   const handleLogin = () => {
-    if (testData && testData.users) {
-      const userIndex = testData.users.findIndex(
-        (user) => user.username === username && user.password === password
-      );
-
-      if (userIndex !== -1) {
-        navigation.navigate('Main', { userIndex });
-      } else {
-        Alert.alert('Login Failed', 'Invalid username or password.');
-      }
-    } else {
-      Alert.alert('Data Error', 'User data could not be loaded.');
-    }
+    const userIndex = 3;
+    navigation.navigate('Main', { userIndex });
   };
 
     // const handleLogin = async () => {

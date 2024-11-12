@@ -59,7 +59,8 @@ const OperationScreen = ({ route, navigation }) => {
           text: 'OK',
           onPress: () => {
             // Navigate to the main screen or the desired screen after the conversion
-            navigation.navigate('Main'); // Replace 'MainScreen' with your actual screen name
+            const userIndex = 3;
+            navigation.navigate('Main', { userIndex }); // Replace 'MainScreen' with your actual screen name
           },
         },
       ]

@@ -1,32 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Button, StyleSheet, TouchableWithoutFeedback, Keyboard, ScrollView, Alert, Image } from 'react-native';
 import axios from 'axios';
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation
-import testData from '../testData.json';
+import { useNavigation } from '@react-navigation/native';
 
 const MainScreen = ({ route }) => {
   const { userIndex } = route.params;
-  const user = testData.users[userIndex];
-  
-  // Set initial states for user accounts and loading
   const [currencyAccounts, setCurrencyAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigation = useNavigation();
 
-  const navigation = useNavigation(); // Get navigation instance
-
-  // Fetch currency account data
   const fetchCurrencyAccounts = async () => {
     try {
-      const response = await axios.get(`  tp://192.168.0.247:8000/api/currency-accounts/3/`);
-      const data = response.data;
-      
-      // Check if the response contains valid data (assuming it's an object with account details)
-      if (Array.isArray(data)) {
-        setCurrencyAccounts(data); // Handle array response if multiple accounts
-      } else {
-        setCurrencyAccounts([data]); // Handle object response as a single account in an array
-      }
-
+      const response = await axios.get(`http://192.168.0.247:8000/api/currency-accounts/user/${userIndex}/`);
+      setCurrencyAccounts(response.data);
       setLoading(false);
     } catch (error) {
       console.error(error);
@@ -44,7 +30,7 @@ const MainScreen = ({ route }) => {
       headerRight: () => (
         <TouchableWithoutFeedback onPress={() => navigation.navigate('EditProfile')}>
           <Image
-            source={require('../assets/edit-profile-icon.png')} // Replace with your correct path to the image
+            source={require('../assets/edit-profile-icon.png')}
             style={styles.editProfileIcon}
           />
         </TouchableWithoutFeedback>
@@ -55,9 +41,8 @@ const MainScreen = ({ route }) => {
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <View style={styles.container}>
-        <Text style={styles.greeting}>Hello, {user ? user.first_name : 'User'}!</Text>
+        <Text style={styles.greeting}>Hello, {userIndex ? userIndex : 'User'}!</Text>
         
-        {/* Add space between greeting and "Your Currency Accounts" */}
         <Text style={styles.heading}>Your Currency Accounts</Text>
 
         {loading ? (
@@ -102,8 +87,8 @@ const styles = StyleSheet.create({
   },
   heading: {
     fontSize: 24,
-    marginBottom: 40,  // Increased space between greeting and heading
-    marginTop: 60,     // Added margin-top to create more space from "Hello, User!" text
+    marginBottom: 40,
+    marginTop: 60,
   },
   cardsContainer: {
     width: '100%',
@@ -134,12 +119,11 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     width: '100%',
   },
-  // Style for the Edit Profile icon image
   editProfileIcon: {
     width: 30,
     height: 30,
-    resizeMode: 'contain', // Adjust to fit the button size
-    marginRight: 20, // Optional: Add spacing
+    resizeMode: 'contain',
+    marginRight: 20,
   },
 });
 
