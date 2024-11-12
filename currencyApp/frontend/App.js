@@ -12,18 +12,13 @@ import HistoryScreen from './screens/HistoryScreen';
 const Stack = createStackNavigator();
 
 const App = () => {
-  const [balances, setBalances] = useState({
-    EUR: 500,
-    PLN: 0,
-    USD: 300,
-  });
 
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Main">
+      <Stack.Navigator initialRouteName="Login">
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Register" component={RegisterScreen} />
-        <Stack.Screen name="Main" component={MainScreen} initialParams={{ balances, setBalances }} />
+        <Stack.Screen name="Main" component={MainScreen} />
         <Stack.Screen name="EditProfile" component={EditProfileScreen} />
         <Stack.Screen name="Exchange" component={ExchangeScreen} />
         <Stack.Screen name="Operation" component={OperationScreen} />
