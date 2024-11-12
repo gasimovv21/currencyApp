@@ -1,3 +1,4 @@
+from django.db import IntegrityError
 from rest_framework.response import Response
 from rest_framework import status
 from .models import User, UserCurrencyAccount
@@ -55,8 +56,11 @@ def getCurrencyAccounts(request):
 def createCurrencyAccount(request):
     serializer = UserCurrencyAccountSerializer(data=request.data)
     if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        try:
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except IntegrityError:
+            return Response({"error": "Account with this currency already exists for this user."}, status=status.HTTP_400_BAD_REQUEST)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 def getCurrencyAccountDetail(request, pk):

@@ -1,6 +1,10 @@
 import re
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+
 
 class User(models.Model):
     user_id = models.AutoField(primary_key=True)
@@ -85,6 +89,7 @@ class UserCurrencyAccount(models.Model):
         ('HKD', 'Hong Kong Dollar'),
         ('NOK', 'Norwegian Krone'),
         ('KRW', 'South Korean Won'),
+        ('PLN', 'Polish Zloty'),  # Default
     ]
 
     account_id = models.AutoField(primary_key=True)
@@ -94,12 +99,23 @@ class UserCurrencyAccount(models.Model):
     is_active = models.BooleanField(default=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    def __str__(self):
-        return f"{self.get_currency_code_display()} Account for {self.user.username}"  # get_currency_code_display() возвращает читабельное имя
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'currency_code'], name='unique_user_currency_account')
+        ]
 
+    def __str__(self):
+        return f"{self.get_currency_code_display()} Account for {self.user.username}"
 
     def clean(self):
         if not re.match(r'^[A-Z]{3}$', self.currency_code):
             raise ValidationError("Currency code must be a valid ISO 4217 code (e.g., USD, EUR, PLN).")
         if self.balance < 0:
             raise ValidationError("Balance cannot be negative.")
+
+
+# Сигнал для создания родного валютного счета
+@receiver(post_save, sender=User)
+def create_default_currency_account(sender, instance, created, **kwargs):
+    if created:
+        UserCurrencyAccount.objects.create(user=instance, currency_code='PLN')
