@@ -44,21 +44,28 @@ const OperationScreen = ({ route, navigation }) => {
   const handleConversion = () => {
     const numericAmount1 = parseFloat(amount1);
     const numericAmount2 = parseFloat(amount2);
-
+  
     if (isNaN(numericAmount1) || numericAmount1 <= 0 || isNaN(numericAmount2) || numericAmount2 <= 0) {
       Alert.alert('Invalid amount', 'Please enter valid numbers greater than 0.');
       return;
     }
-
+  
     // Logic to update the balances after conversion (you will need to implement this part)
     Alert.alert(
       'Success!',
-      `You completed an exchange from ${numericAmount1.toFixed(2)} ${fromCurrency} to ${numericAmount2.toFixed(2)} ${toCurrency}.`
+      `You completed an exchange from ${numericAmount1.toFixed(2)} ${fromCurrency} to ${numericAmount2.toFixed(2)} ${toCurrency}.`,
+      [
+        {
+          text: 'OK',
+          onPress: () => {
+            // Navigate to the main screen or the desired screen after the conversion
+            navigation.navigate('Main'); // Replace 'MainScreen' with your actual screen name
+          },
+        },
+      ]
     );
-
-    // Optionally, here you should update the user’s balance in your database
-    // Example: updateBalance(numericAmount1, numericAmount2);
   };
+  
 
   const fetchChartData = async () => {
     try {

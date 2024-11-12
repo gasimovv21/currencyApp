@@ -3,16 +3,15 @@ import { View, Text, TextInput, Button, StyleSheet, TouchableWithoutFeedback, Ke
 import axios from 'axios';
 
 const EditProfileScreen = ({ navigation }) => {
-  const userId = 1; // Replace with dynamic user ID if necessary
-  const baseURL = 'http://192.168.1.30:8000'; // Replace with your actual IP address
+  const userId = 3;
+  const baseURL = 'http://192.168.0.247:8000';
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [createdOn, setCreatedOn] = useState('');
-  const [updatedOn, setUpdatedOn] = useState('');
-  const [loading, setLoading] = useState(true); // Loading state
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -24,8 +23,7 @@ const EditProfileScreen = ({ navigation }) => {
         setLastName(data.last_name);
         setEmail(data.email);
         setPhone(data.phone_number);
-        setCreatedOn(data.account_created_on);
-        setUpdatedOn(data.updated_on);
+        setCreatedOn(new Date(data.account_created_on).toLocaleDateString());
         setLoading(false);
       } catch (error) {
         console.error(error);
@@ -44,7 +42,7 @@ const EditProfileScreen = ({ navigation }) => {
         last_name: lastName,
         email,
         phone_number: phone,
-        ...(password && { password }), // Only include password if provided
+        ...(password && { password }),
       };
 
       await axios.put(`${baseURL}/api/users/${userId}/`, updatedData, {
@@ -70,6 +68,9 @@ const EditProfileScreen = ({ navigation }) => {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <ScrollView contentContainerStyle={styles.container}>
+        {/* "Account Created On" text in small, subtle font in top-right */}
+        <Text style={styles.createdOnText}>Account Created On: {createdOn}</Text>
+
         <Text style={styles.header}>Edit Profile</Text>
 
         <TextInput
@@ -133,6 +134,12 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     borderWidth: 1,
     borderColor: '#ddd',
+  },
+  createdOnText: {
+    fontSize: 10,
+    color: '#888',
+    textAlign: 'right',
+    marginBottom: 10,
   },
   loadingContainer: {
     flex: 1,
