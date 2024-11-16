@@ -1,16 +1,19 @@
 from django.contrib import admin
 from django.core.exceptions import ValidationError
 from django.forms import ModelForm
-from .models import User, UserCurrencyAccount
+from .models import User, UserCurrencyAccount, Transaction, AccountHistory
+
 
 class UserForm(ModelForm):
     class Meta:
         model = User
         fields = '__all__'
 
+
 class UserCurrencyAccountInline(admin.TabularInline):
     model = UserCurrencyAccount
     extra = 1
+
 
 class UserAdmin(admin.ModelAdmin):
     form = UserForm
@@ -28,6 +31,21 @@ class UserCurrencyAccountAdmin(admin.ModelAdmin):
     search_fields = ('user__username', 'currency_code')
 
 
+class TransactionAdmin(admin.ModelAdmin):
+    list_display = ('transaction_id', 'user', 'from_currency', 'to_currency', 'amount', 'created_at')
+    list_filter = ('from_currency', 'to_currency', 'created_at')
+    search_fields = ('user__username', 'from_currency', 'to_currency')
+    ordering = ('-created_at',)
+
+
+class AccountHistoryAdmin(admin.ModelAdmin):
+    list_display = ('history_id', 'user', 'currency', 'amount', 'action', 'created_at')
+    list_filter = ('currency', 'action', 'created_at')
+    search_fields = ('user__username', 'currency', 'action')
+    ordering = ('-created_at',)
+
 
 admin.site.register(User, UserAdmin)
 admin.site.register(UserCurrencyAccount, UserCurrencyAccountAdmin)
+admin.site.register(Transaction, TransactionAdmin)
+admin.site.register(AccountHistory, AccountHistoryAdmin)

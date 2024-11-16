@@ -114,8 +114,36 @@ class UserCurrencyAccount(models.Model):
             raise ValidationError("Balance cannot be negative.")
 
 
-# Сигнал для создания родного валютного счета
 @receiver(post_save, sender=User)
 def create_default_currency_account(sender, instance, created, **kwargs):
     if created:
         UserCurrencyAccount.objects.create(user=instance, currency_code='PLN')
+
+
+class Transaction(models.Model):
+    transaction_id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='transactions')
+    from_currency = models.CharField(max_length=3)
+    to_currency = models.CharField(max_length=3)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Transaction {self.transaction_id}: {self.user.username} ({self.from_currency} to {self.to_currency}, {self.amount})"
+
+
+class AccountHistory(models.Model):
+    ACTION_CHOICES = [
+        ('deposit', 'Deposit'),
+        ('withdraw', 'Withdraw'),
+    ]
+
+    history_id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='account_histories')
+    currency = models.CharField(max_length=3)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    action = models.CharField(max_length=8, choices=ACTION_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"History {self.history_id}: {self.user.username} ({self.currency}, {self.action}, {self.amount})"

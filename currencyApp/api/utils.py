@@ -1,8 +1,11 @@
 from django.db import IntegrityError
 from rest_framework.response import Response
 from rest_framework import status
-from .models import User, UserCurrencyAccount
+from .models import User, UserCurrencyAccount, Transaction, AccountHistory
 from .serializers import UserSerializer, UserCurrencyAccountSerializer
+from django.db import transaction as db_transaction
+from decimal import Decimal
+
 
 def getUsersList(request):
     users = User.objects.all()
@@ -46,7 +49,6 @@ def deleteUser(request, pk):
     user.delete()
     return Response({"message": "User deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
 
-# Functions for UserCurrencyAccount
 
 def getCurrencyAccounts(request):
     accounts = UserCurrencyAccount.objects.all()
@@ -104,3 +106,36 @@ def getUserCurrencyAccounts(request, user_id):
         return Response(serializer.data, status=status.HTTP_200_OK)
     except User.DoesNotExist:
         return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+
+def convert_currency(user, from_currency, to_currency, amount):
+    try:
+        from_account = UserCurrencyAccount.objects.get(user=user, currency_code=from_currency)
+        to_account = UserCurrencyAccount.objects.get(user=user, currency_code=to_currency)
+    except UserCurrencyAccount.DoesNotExist:
+        return Response({"error": "One or both currency accounts do not exist for this user."}, status=status.HTTP_400_BAD_REQUEST)
+
+    amount = Decimal(amount)
+
+    if from_account.balance < amount:
+        return Response({"error": f"Insufficient balance in {from_currency} account."}, status=status.HTTP_400_BAD_REQUEST)
+
+    with db_transaction.atomic():
+        from_account.balance -= amount
+        from_account.save()
+
+        to_account.balance += amount
+        to_account.save()
+
+        transaction = Transaction.objects.create(
+            user=user,
+            from_currency=from_currency,
+            to_currency=to_currency,
+            amount=amount
+        )
+
+        AccountHistory.objects.create(user=user, currency=from_currency, amount=amount, action='withdraw')
+        AccountHistory.objects.create(user=user, currency=to_currency, amount=amount, action='deposit')
+
+    return Response({"message": "Conversion successful.", "transaction_id": transaction.transaction_id}, status=status.HTTP_201_CREATED)
