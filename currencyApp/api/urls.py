@@ -1,5 +1,9 @@
 from django.urls import path
-from .views import getUsers, getUser, getCurrencyAccountsView, getCurrencyAccountView, getUserCurrencyAccountsView, convertCurrency
+from .views import (getUsers, getUser, getCurrencyAccountsView, 
+                    getCurrencyAccountView, getUserCurrencyAccountsView, 
+                    convertCurrency, depositToAccount
+)
+
 
 urlpatterns = [
     path('users/', getUsers, name='user-list'),
@@ -9,4 +13,5 @@ urlpatterns = [
     path('currency-accounts/user/<int:user_id>/', getUserCurrencyAccountsView, name='user-currency-accounts'),
 
     path('currency-accounts/convert/<int:user_id>/', convertCurrency, name='convert-currency'),
+    path('currency-accounts/deposit/<int:user_id>/', depositToAccount, name='deposit-to-account'),
 ]

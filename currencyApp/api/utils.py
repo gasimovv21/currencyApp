@@ -1,7 +1,7 @@
 from django.db import IntegrityError
 from rest_framework.response import Response
 from rest_framework import status
-from .models import User, UserCurrencyAccount, Transaction, AccountHistory
+from .models import User, UserCurrencyAccount, Transaction, AccountHistory, DepositHistory
 from .serializers import UserSerializer, UserCurrencyAccountSerializer
 from django.db import transaction as db_transaction
 from decimal import Decimal
@@ -139,3 +139,27 @@ def convert_currency(user, from_currency, to_currency, amount):
         AccountHistory.objects.create(user=user, currency=to_currency, amount=amount, action='deposit')
 
     return Response({"message": "Conversion successful.", "transaction_id": transaction.transaction_id}, status=status.HTTP_201_CREATED)
+
+
+def deposit_to_account(user, user_currency_account_code, amount):
+    try:
+        account = UserCurrencyAccount.objects.get(currency_code=user_currency_account_code, user=user)
+    except UserCurrencyAccount.DoesNotExist:
+        return Response({"error": f"Account with currency {user_currency_account_code} not found for this user."}, status=status.HTTP_404_NOT_FOUND)
+
+    amount = Decimal(amount)
+
+    if amount <= 0:
+        return Response({"error": "Deposit amount must be greater than zero."}, status=status.HTTP_400_BAD_REQUEST)
+
+    with db_transaction.atomic():
+        account.balance += amount
+        account.save()
+
+        deposit = DepositHistory.objects.create(
+            user=user,
+            user_currency_account=account,
+            amount=amount
+        )
+
+    return Response({"message": "Deposit successful.", "deposit_id": deposit.deposit_id}, status=status.HTTP_201_CREATED)

@@ -1,7 +1,9 @@
 from django.contrib import admin
 from django.core.exceptions import ValidationError
 from django.forms import ModelForm
-from .models import User, UserCurrencyAccount, Transaction, AccountHistory
+from .models import (User, UserCurrencyAccount, 
+                    Transaction, AccountHistory, DepositHistory
+)
 
 
 class UserForm(ModelForm):
@@ -45,7 +47,15 @@ class AccountHistoryAdmin(admin.ModelAdmin):
     ordering = ('-created_at',)
 
 
+class DepositHistoryAdmin(admin.ModelAdmin):
+    list_display = ('deposit_id', 'user', 'user_currency_account', 'amount', 'created_at')
+    list_filter = ('user', 'user_currency_account', 'created_at')
+    search_fields = ('user__username', 'user_currency_account__currency_code')
+
+
+
 admin.site.register(User, UserAdmin)
 admin.site.register(UserCurrencyAccount, UserCurrencyAccountAdmin)
 admin.site.register(Transaction, TransactionAdmin)
 admin.site.register(AccountHistory, AccountHistoryAdmin)
+admin.site.register(DepositHistory, DepositHistoryAdmin)
