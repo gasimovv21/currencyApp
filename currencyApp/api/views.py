@@ -81,7 +81,12 @@ def convertCurrency(request, user_id):
 @api_view(['GET', 'POST'])
 def depositToAccount(request, user_id):
     if request.method == 'GET':
+        currency_code = request.GET.get('currency_code')
+
         deposits = DepositHistory.objects.filter(user_id=user_id)
+        if currency_code:
+            deposits = deposits.filter(user_currency_account__currency_code=currency_code)
+
         serializer = DepositHistorySerializer(deposits, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 

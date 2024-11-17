@@ -92,6 +92,12 @@ def deleteCurrencyAccount(request, pk):
     except UserCurrencyAccount.DoesNotExist:
         return Response({"error": "Currency account not found"}, status=status.HTTP_404_NOT_FOUND)
 
+    if account.currency_code == 'PLN':
+        return Response({"error": "Cannot delete the default PLN account."}, status=status.HTTP_400_BAD_REQUEST)
+
+    if account.balance != 0.00:
+        return Response({"error": "Cannot delete account with a non-zero balance."}, status=status.HTTP_400_BAD_REQUEST)
+
     account.delete()
     return Response({"message": "Currency account deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
 
