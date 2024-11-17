@@ -22,19 +22,22 @@ const OperationScreen = ({ route, navigation }) => {
   const [chartData, setChartData] = useState(null);
 
   const handleAmount1Change = (value) => {
-    setAmount1(value);
-    if (value) {
-      const convertedValue = parseFloat(value) * parseFloat(exchangeRate);
+    // Replace commas with periods
+    const formattedValue = value.replace(',', '.');
+    setAmount1(formattedValue);
+    if (formattedValue) {
+      const convertedValue = parseFloat(formattedValue) * parseFloat(exchangeRate);
       setAmount2(convertedValue.toFixed(2));
     } else {
       setAmount2('');
     }
   };
-
+  
   const handleAmount2Change = (value) => {
-    setAmount2(value);
-    if (value) {
-      const convertedValue = parseFloat(value) / parseFloat(exchangeRate);
+    const formattedValue = value.replace(',', '.');
+    setAmount2(formattedValue);
+    if (formattedValue) {
+      const convertedValue = parseFloat(formattedValue) / parseFloat(exchangeRate);
       setAmount1(convertedValue.toFixed(2));
     } else {
       setAmount1('');

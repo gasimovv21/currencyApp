@@ -6,12 +6,13 @@ const DepositHistoryScreen = ({ route }) => {
   const { currencyCode } = route.params;
   const [depositHistory, setDepositHistory] = useState([]);
   const [loading, setLoading] = useState(true);
+  const userId = 1;
 
   useEffect(() => {
     // Replace with the actual API for fetching deposit history
     const fetchDepositHistory = async () => {
       try {
-        const response = await axios.get(`http://192.168.0.247:8000/api/deposits/history/${currencyCode}/`);
+        const response = await axios.get(`http://192.168.0.247:8000/api/currency-accounts/deposit/${userId}/`);
         setDepositHistory(response.data);
       } catch (error) {
         console.error(error);
@@ -34,8 +35,8 @@ const DepositHistoryScreen = ({ route }) => {
         <ScrollView style={styles.historyContainer}>
           {depositHistory.map((item) => (
             <View key={item.id} style={styles.historyCard}>
-              <Text style={styles.historyText}>Amount: {item.amount} {currencyCode}</Text>
-              <Text style={styles.historyText}>Date: {item.date}</Text>
+              <Text style={styles.historyText}>Amount: +{item.amount} {currencyCode}</Text>
+              <Text style={styles.historyText}>Date: {item.created_at}</Text>
             </View>
           ))}
         </ScrollView>
