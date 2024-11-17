@@ -3,7 +3,7 @@ import { View, Text, TextInput, Button, StyleSheet, TouchableWithoutFeedback, Ke
 import axios from 'axios';
 
 const EditProfileScreen = ({ navigation }) => {
-  const userId = 3;
+  const userId = 1;
   const baseURL = 'http://192.168.0.247:8000';
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -52,7 +52,7 @@ const EditProfileScreen = ({ navigation }) => {
       Alert.alert('Success', 'Profile updated successfully!');
       navigation.goBack();
     } catch (error) {
-      console.error(error);
+      //console.error(error);
       Alert.alert('Error', 'Failed to update profile');
     }
   };

@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
 import { Dimensions } from 'react-native';
+import axios from 'axios';
 
 const OperationScreen = ({ route, navigation }) => {
   const { fromCurrency, toCurrency, rate, type, exchangeRate } = route.params;
@@ -20,7 +21,6 @@ const OperationScreen = ({ route, navigation }) => {
   const [amount2, setAmount2] = useState('');
   const [chartData, setChartData] = useState(null);
 
-  // Convert input value 1 to input value 2 or vice versa
   const handleAmount1Change = (value) => {
     setAmount1(value);
     if (value) {
@@ -41,7 +41,7 @@ const OperationScreen = ({ route, navigation }) => {
     }
   };
 
-  const handleConversion = () => {
+  const handleConversion = async () => {
     const numericAmount1 = parseFloat(amount1);
     const numericAmount2 = parseFloat(amount2);
   
@@ -50,21 +50,44 @@ const OperationScreen = ({ route, navigation }) => {
       return;
     }
   
-    // Logic to update the balances after conversion (you will need to implement this part)
-    Alert.alert(
-      'Success!',
-      `You completed an exchange from ${numericAmount1.toFixed(2)} ${fromCurrency} to ${numericAmount2.toFixed(2)} ${toCurrency}.`,
-      [
-        {
-          text: 'OK',
-          onPress: () => {
-            // Navigate to the main screen or the desired screen after the conversion
-            const userIndex = 3;
-            navigation.navigate('Main', { userIndex }); // Replace 'MainScreen' with your actual screen name
-          },
-        },
-      ]
-    );
+    try {
+      const payload = {
+        from_currency: fromCurrency,
+        to_currency: toCurrency,
+        amount: numericAmount1,
+      };
+  
+      const userId = 1; // Replace with dynamic user ID if available
+      const baseURL = 'http://192.168.0.247:8000';
+  
+      const response = await axios.post(`${baseURL}/api/currency-accounts/convert/${userId}/`, payload, {
+        headers: { 'Content-Type': 'application/json' },
+      });
+  
+      console.log('API Response:', response);
+  
+      // Check for successful status codes (200 or 201)
+      if (response.status === 200 || response.status === 201) {
+        Alert.alert(
+          'Success!',
+          `You completed an exchange from ${numericAmount1.toFixed(2)} ${fromCurrency} to ${numericAmount2.toFixed(2)} ${toCurrency}.`,
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                navigation.navigate('Main', { userIndex: userId });
+              },
+            },
+          ]
+        );
+      } else {
+        //console.error('Unexpected Response:', response.status);
+        Alert.alert('Conversion failed', 'Something went wrong, please try again later.');
+      }
+    } catch (error) {
+      //console.error('Conversion Error:', error.response?.data || error.message);
+      Alert.alert('Error', 'Failed to complete the conversion. Please check your inputs and try again.');
+    }
   };
   
 

@@ -6,7 +6,7 @@ const LoginScreen = ({ navigation }) => {
   const [password, setPassword] = useState('');
 
   const handleLogin = () => {
-    const userIndex = 3;
+    const userIndex = 1;
     navigation.navigate('Main', { userIndex });
   };
 

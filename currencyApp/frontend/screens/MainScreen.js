@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Button, StyleSheet, TouchableWithoutFeedback, Keyboard, ScrollView, Alert, Image } from 'react-native';
 import axios from 'axios';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 
 const MainScreen = ({ route }) => {
   const { userIndex } = route.params;
@@ -21,9 +21,11 @@ const MainScreen = ({ route }) => {
     }
   };
 
-  useEffect(() => {
-    fetchCurrencyAccounts();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchCurrencyAccounts();
+    }, [])
+  );
 
   useEffect(() => {
     navigation.setOptions({
