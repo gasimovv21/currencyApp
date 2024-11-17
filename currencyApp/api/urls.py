@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import (getUsers, getUser, getCurrencyAccountsView, 
                     getCurrencyAccountView, getUserCurrencyAccountsView, 
-                    convertCurrency, depositToAccount
+                    convertCurrency, depositToAccount, getAccountHistory
 )
 
 
@@ -14,4 +14,5 @@ urlpatterns = [
 
     path('currency-accounts/convert/<int:user_id>/', convertCurrency, name='convert-currency'),
     path('currency-accounts/deposit/<int:user_id>/', depositToAccount, name='deposit-to-account'),
+    path('currency-accounts/history/<int:user_id>/', getAccountHistory, name='account-history'),
 ]
