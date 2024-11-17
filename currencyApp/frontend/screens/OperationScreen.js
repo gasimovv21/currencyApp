@@ -57,7 +57,7 @@ const OperationScreen = ({ route, navigation }) => {
         amount: numericAmount1,
       };
   
-      const userId = 1; // Replace with dynamic user ID if available
+      const userId = 1;
       const baseURL = 'http://192.168.0.247:8000';
   
       const response = await axios.post(`${baseURL}/api/currency-accounts/convert/${userId}/`, payload, {

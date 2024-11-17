@@ -4,6 +4,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
 import MainScreen from './screens/MainScreen';
+import DepositScreen from './screens/DepositScreen';
+import DepositHistoryScreen from './screens/DepositHistoryScreen';
 import EditProfileScreen from './screens/EditProfileScreen';
 import ExchangeScreen from './screens/ExchangeScreen';
 import OperationScreen from './screens/OperationScreen';
@@ -19,6 +21,8 @@ const App = () => {
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Register" component={RegisterScreen} />
         <Stack.Screen name="Main" component={MainScreen} />
+        <Stack.Screen name="DepositScreen" component={DepositScreen} />
+        <Stack.Screen name="DepositHistoryScreen" component={DepositHistoryScreen} />
         <Stack.Screen name="EditProfile" component={EditProfileScreen} />
         <Stack.Screen name="Exchange" component={ExchangeScreen} />
         <Stack.Screen name="Operation" component={OperationScreen} />
