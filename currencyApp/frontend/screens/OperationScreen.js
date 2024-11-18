@@ -22,11 +22,16 @@ const OperationScreen = ({ route, navigation }) => {
   const [chartData, setChartData] = useState(null);
 
   const handleAmount1Change = (value) => {
-    // Replace commas with periods
+    console.log(exchangeRate)
     const formattedValue = value.replace(',', '.');
     setAmount1(formattedValue);
     if (formattedValue) {
       const convertedValue = parseFloat(formattedValue) * parseFloat(exchangeRate);
+
+
+    // exchangeRate: type === 'SELL' ? exchangeRates[fromCurrency]?.[rate] : exchangeRates[toCurrency]?.[rate],
+
+
       setAmount2(convertedValue.toFixed(2));
     } else {
       setAmount2('');
@@ -47,6 +52,8 @@ const OperationScreen = ({ route, navigation }) => {
   const handleConversion = async () => {
     const numericAmount1 = parseFloat(amount1);
     const numericAmount2 = parseFloat(amount2);
+    console.log(numericAmount1)
+    console.log(numericAmount2)
   
     if (isNaN(numericAmount1) || numericAmount1 <= 0 || isNaN(numericAmount2) || numericAmount2 <= 0) {
       Alert.alert('Invalid amount', 'Please enter valid numbers greater than 0.');
@@ -56,10 +63,10 @@ const OperationScreen = ({ route, navigation }) => {
     try {
       const payload = {
         from_currency: fromCurrency,
-        to_currency: toCurrency,
-        amount: numericAmount1,
-      };
-  
+        to_currency: fromCurrency,
+        amount: numericAmount2,
+    };
+      
       const userId = 1;
       const baseURL = 'http://192.168.0.247:8000';
   
@@ -67,13 +74,15 @@ const OperationScreen = ({ route, navigation }) => {
         headers: { 'Content-Type': 'application/json' },
       });
   
-      console.log('API Response:', response);
+      //console.log('API Response:', response);
   
       // Check for successful status codes (200 or 201)
       if (response.status === 200 || response.status === 201) {
         Alert.alert(
           'Success!',
-          `You completed an exchange from ${numericAmount1.toFixed(2)} ${fromCurrency} to ${numericAmount2.toFixed(2)} ${toCurrency}.`,
+          `${type === 'SELL' ? 
+            `You completed an exchange from ${numericAmount1.toFixed(2)} ${fromCurrency} to ${numericAmount2.toFixed(2)} ${toCurrency}.` : 
+            `You completed an exchange from ${numericAmount2.toFixed(2)} ${fromCurrency} to ${numericAmount1.toFixed(2)} ${toCurrency}.`}`,
           [
             {
               text: 'OK',
@@ -83,12 +92,13 @@ const OperationScreen = ({ route, navigation }) => {
             },
           ]
         );
+        
       } else {
         //console.error('Unexpected Response:', response.status);
         Alert.alert('Conversion failed', 'Something went wrong, please try again later.');
       }
     } catch (error) {
-      //console.error('Conversion Error:', error.response?.data || error.message);
+      console.error('Conversion Error:', error.response?.data || error.message);
       Alert.alert('Error', 'Failed to complete the conversion. Please check your inputs and try again.');
     }
   };
@@ -97,13 +107,13 @@ const OperationScreen = ({ route, navigation }) => {
   const fetchChartData = async () => {
     try {
       const response = await fetch(
-        `https://api.nbp.pl/api/exchangerates/rates/c/${(type === 'SELL' ? fromCurrency : toCurrency).toLowerCase()}/last/10/?format=json`
+        `https://api.nbp.pl/api/exchangerates/rates/c/${fromCurrency}/last/10/?format=json`
       );
 
       if (response.ok) {
         const responseText = await response.text();
         const data = JSON.parse(responseText);
-        const values = data.rates.map((item) => (type === 'SELL' ? item.ask : item.bid));
+        const values = data.rates.map((item) => (type === 'BUY' ? item.ask : item.bid));
 
         setChartData({
           labels: Array(10).fill(''),
@@ -135,6 +145,7 @@ const OperationScreen = ({ route, navigation }) => {
         contentContainerStyle={styles.scrollContainer}
         keyboardShouldPersistTaps="handled"
       >
+        <Text style={styles.title}>You are exchanging {fromCurrency} for {toCurrency}</Text>
         <View style={styles.container}>
           {chartData && (
             <LineChart
@@ -157,8 +168,7 @@ const OperationScreen = ({ route, navigation }) => {
             />
           )}
 
-          <Text style={styles.title}>You {type} {(type === 'SELL' ? fromCurrency : toCurrency)}</Text>
-          <Text style={styles.subtitle}>Enter the amount:</Text>
+          <Text style={styles.subtitle}>{type === 'SELL' ? "You are selling:" : "You are buying:"}</Text>
 
           <TextInput
             style={styles.input}
@@ -170,8 +180,7 @@ const OperationScreen = ({ route, navigation }) => {
             onSubmitEditing={() => Keyboard.dismiss()}
           />
 
-          <Text style={styles.title}>You will get:</Text>
-          <Text style={styles.subtitle}>Enter the amount:</Text>
+          <Text style={styles.subtitle}>{type === 'SELL' ? "You will get:" : "You will pay:"}</Text>
 
           <TextInput
             style={styles.input}
@@ -183,7 +192,7 @@ const OperationScreen = ({ route, navigation }) => {
             onSubmitEditing={() => Keyboard.dismiss()}
           />
 
-          <Button title={`Convert ${type}`} onPress={handleConversion} />
+          <Button title={`Convert`} onPress={handleConversion} />
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -208,8 +217,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   subtitle: {
-    fontSize: 18,
-    marginBottom: 10,
+    fontSize: 10,
+    marginBottom: 5,
+    marginTop: 20,
+    textAlign: 'left',
+    width: '80%',
   },
   input: {
     width: '80%',

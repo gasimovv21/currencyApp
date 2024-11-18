@@ -1,39 +1,90 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Button, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { View, Text, Button, StyleSheet, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
+import axios from 'axios';
 
 const ExchangeScreen = ({ navigation }) => {
-  const [exchangeRates, setExchangeRates] = useState({ USD: null, EUR: null });
+  const [userCurrencies, setUserCurrencies] = useState([]);
+  const [exchangeRates, setExchangeRates] = useState({});
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchRates = async () => {
-      try {
-        const usdResponse = await fetch('https://api.nbp.pl/api/exchangerates/rates/c/usd/?format=json');
-        const eurResponse = await fetch('https://api.nbp.pl/api/exchangerates/rates/c/eur/?format=json');
-        const usdData = await usdResponse.json();
-        const eurData = await eurResponse.json();
+  const userId = 1;
 
-        setExchangeRates({
-          USD: { bid: usdData.rates[0].bid, ask: usdData.rates[0].ask },
-          EUR: { bid: eurData.rates[0].bid, ask: eurData.rates[0].ask },
+  useEffect(() => {
+    const fetchUserCurrencies = async () => {
+      try {
+        const response = await axios.get(`http://192.168.0.247:8000/api/currency-accounts/user/${userId}/`);
+        setUserCurrencies(response.data);
+      } catch (error) {
+        console.error('Error fetching user currencies:', error);
+        Alert.alert('Error', 'Failed to fetch your accounts.');
+      }
+    };
+
+    fetchUserCurrencies();
+  }, [userId]);
+
+  useEffect(() => {
+    const fetchExchangeRates = async () => {
+      try {
+        const currencyCodes = userCurrencies
+          .filter((currency) => currency.currency_code !== 'PLN')
+          .map((currency) => currency.currency_code.toUpperCase());
+  
+        const ratePromises = currencyCodes.map((currency) =>
+          fetch(`https://api.nbp.pl/api/exchangerates/rates/c/${currency.toLowerCase()}/?format=json`)
+        );
+  
+        const responses = await Promise.all(ratePromises);
+  
+        const rateData = await Promise.all(responses.map(async (response) => {
+          const text = await response.text();
+          if (response.status === 404 || !text.includes('rates')) {
+            console.error(`No data for currency: ${response.url}`);
+            return { error: `No data for currency: ${response.url}` };
+          }
+  
+          try {
+            return JSON.parse(text);
+          } catch (e) {
+            console.error('Error parsing exchange rate response:', e, text);
+            return { error: 'Invalid JSON response' };
+          }
+        }));
+  
+        const rates = {};
+        rateData.forEach((data, index) => {
+          if (data.error) {
+            rates[currencyCodes[index]] = { error: data.error };
+          } else {
+            const currency = currencyCodes[index];
+            const rate = data.rates[0] || {};
+            rates[currency] = {
+              bid: rate.bid || 'N/A',
+              ask: rate.ask || 'N/A',
+            };
+          }
         });
+  
+        setExchangeRates(rates);
       } catch (error) {
         console.error('Error fetching exchange rates:', error);
       } finally {
         setLoading(false);
       }
     };
+  
+    if (userCurrencies.length > 0) {
+      fetchExchangeRates();
+    }
+  }, [userCurrencies]);
 
-    fetchRates();
-  }, []);
-
-  const navigateToOperation = (fromCurrency, toCurrency, rate, type, exchangeRate) => {
+  const navigateToOperation = (fromCurrency, toCurrency, rate, type) => {
     navigation.navigate('Operation', {
       fromCurrency,
       toCurrency,
       rate,
       type,
-      exchangeRate,
+      exchangeRate: type === 'SELL' ? exchangeRates[fromCurrency]?.[rate] : exchangeRates[fromCurrency]?.[rate],
     });
   };
 
@@ -43,29 +94,38 @@ const ExchangeScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {['EUR', 'USD'].map((currency) => (
-        <View key={currency} style={styles.card}>
-          <Text style={styles.cardTitle}>{currency}/PLN</Text>
-          <View style={styles.row}>
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => navigateToOperation(currency, 'PLN', 'bid', 'SELL', String(exchangeRates[currency].bid))}
-            >
-              <Text style={styles.buttonText}>SELL {currency}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => navigateToOperation('PLN', currency, 'ask', 'BUY', String(exchangeRates[currency].bid))}
-            >
-              <Text style={styles.buttonText}>BUY {currency}</Text>
-            </TouchableOpacity>
+      {userCurrencies
+        .filter((currency) => currency.currency_code !== 'PLN')
+        .map((currency) => (
+          <View key={currency.account_id} style={styles.card}>
+            <Text style={styles.cardTitle}>{currency.currency_code}/PLN</Text>
+            <View style={styles.row}>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => navigateToOperation(currency.currency_code, 'PLN', 'bid', 'SELL')}
+              >
+                <Text style={styles.buttonText}>SELL {currency.currency_code}</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => navigateToOperation(currency.currency_code, 'PLN', 'ask', 'BUY')}
+              >
+                <Text style={styles.buttonText}>BUY {currency.currency_code}</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.rateContainer}>
+              {exchangeRates[currency.currency_code]?.error ? (
+                <Text style={styles.rate}>Error: {exchangeRates[currency.currency_code].error}</Text>
+              ) : (
+                <>
+                  <Text style={styles.rate}>Bid: {exchangeRates[currency.currency_code]?.bid || 'N/A'}</Text>
+                  <Text style={styles.rate}>Ask: {exchangeRates[currency.currency_code]?.ask || 'N/A'}</Text>
+                </>
+              )}
+            </View>
           </View>
-          <View style={styles.rateContainer}>
-            <Text style={styles.rate}>Bid: {exchangeRates[currency].bid}</Text>
-            <Text style={styles.rate}>Ask: {exchangeRates[currency].ask}</Text>
-          </View>
-        </View>
-      ))}
+        ))}
       <Button title="Exchange History" onPress={() => navigation.navigate('History')} />
     </View>
   );

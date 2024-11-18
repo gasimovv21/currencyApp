@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 
 const DepositScreen = ({ route, navigation }) => {
@@ -29,6 +29,7 @@ const DepositScreen = ({ route, navigation }) => {
 
       if (response.status === 200 || response.status === 201) {
         Alert.alert('Deposit Successful', `You have successfully deposited ${depositAmount} ${currencyCode}.`);
+        navigation.goBack();  // Navigate back to the main screen after deposit
       } else {
         Alert.alert('Deposit Failed', 'Something went wrong, please try again later.');
       }
@@ -36,6 +37,12 @@ const DepositScreen = ({ route, navigation }) => {
       console.error('Deposit Error:', error);
       Alert.alert('Deposit Failed', 'An error occurred while processing the deposit.');
     }
+  };
+
+  const handleInputChange = (value) => {
+    // Replace commas with periods
+    const formattedValue = value.replace(',', '.');
+    setDepositAmount(formattedValue);
   };
 
   return (
@@ -48,10 +55,12 @@ const DepositScreen = ({ route, navigation }) => {
         placeholder={`Enter deposit amount in ${currencyCode}`}
         keyboardType="numeric"
         value={depositAmount}
-        onChangeText={setDepositAmount}
+        onChangeText={handleInputChange} // Update input value with formatted value
       />
 
-      <Button title="Deposit" onPress={handleDeposit} />
+      <TouchableOpacity style={styles.depositButton} onPress={handleDeposit}>
+        <Text style={styles.buttonText}>Deposit</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -62,23 +71,44 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
+    backgroundColor: '#f5f5f5',
   },
   heading: {
-    fontSize: 24,
+    fontSize: 30,
+    fontWeight: 'bold',
     marginBottom: 20,
+    color: '#4e4e4e',
   },
   info: {
     fontSize: 18,
-    marginBottom: 20,
+    marginBottom: 30,
+    color: '#7a7a7a',
+    textAlign: 'center',
   },
   input: {
     width: '80%',
-    padding: 10,
+    padding: 15,
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 5,
+    borderColor: '#ccc',
+    borderRadius: 8,
     marginBottom: 20,
     fontSize: 18,
+    backgroundColor: '#fff',
+  },
+  depositButton: {
+    width: '80%',
+    padding: 15,
+    backgroundColor: '#4CAF50',
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 20,
+    elevation: 5,
+  },
+  buttonText: {
+    fontSize: 20,
+    color: '#fff',
+    fontWeight: 'bold',
   },
 });
 

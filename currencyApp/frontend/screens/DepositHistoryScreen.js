@@ -9,10 +9,11 @@ const DepositHistoryScreen = ({ route }) => {
   const userId = 1;
 
   useEffect(() => {
-    // Replace with the actual API for fetching deposit history
     const fetchDepositHistory = async () => {
       try {
-        const response = await axios.get(`http://192.168.0.247:8000/api/currency-accounts/deposit/${userId}/`);
+        const response = await axios.get(
+          `http://192.168.0.247:8000/api/currency-accounts/deposit/${userId}/?currency_code=${currencyCode}`
+        );
         setDepositHistory(response.data);
       } catch (error) {
         console.error(error);
@@ -28,15 +29,17 @@ const DepositHistoryScreen = ({ route }) => {
     <View style={styles.container}>
       <Text style={styles.heading}>Deposit History for {currencyCode}</Text>
       {loading ? (
-        <ActivityIndicator size="large" color="#0000ff" />
+        <ActivityIndicator size="large" color="#4caf50" />
       ) : depositHistory.length === 0 ? (
-        <Text>No deposit history available.</Text>
+        <Text style={styles.noHistory}>No deposit history available.</Text>
       ) : (
         <ScrollView style={styles.historyContainer}>
-          {depositHistory.map((item) => (
-            <View key={item.id} style={styles.historyCard}>
-              <Text style={styles.historyText}>Amount: +{item.amount} {currencyCode}</Text>
-              <Text style={styles.historyText}>Date: {item.created_at}</Text>
+          {depositHistory.map((item, index) => (
+            <View key={item.id || index} style={styles.historyCard}>
+              <View style={styles.actionRow}>
+                <Text style={styles.amountText}>+{item.amount} {currencyCode}</Text>
+              </View>
+              <Text style={styles.dateText}>Date: {item.created_at}</Text>
             </View>
           ))}
         </ScrollView>
@@ -52,26 +55,45 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
   },
   heading: {
-    fontSize: 24,
-    marginBottom: 20,
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: '#333',
     textAlign: 'center',
+    marginBottom: 20,
+  },
+  noHistory: {
+    textAlign: 'center',
+    fontSize: 16,
+    color: 'gray',
   },
   historyContainer: {
     marginTop: 10,
   },
   historyCard: {
-    padding: 15,
     backgroundColor: '#ffffff',
-    borderRadius: 8,
-    marginBottom: 10,
+    borderRadius: 10,
+    marginBottom: 15,
+    padding: 15,
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 5,
     shadowOffset: { width: 0, height: 2 },
     elevation: 3,
   },
-  historyText: {
-    fontSize: 16,
+  actionRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  amountText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#4caf50',
+  },
+  dateText: {
+    fontSize: 14,
+    color: '#888',
+    marginTop: 5,
   },
 });
 

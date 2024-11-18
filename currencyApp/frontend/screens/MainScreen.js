@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableWithoutFeedback, Alert, Image, Animated, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableWithoutFeedback, Alert, Image, Animated, ScrollView, TouchableOpacity, Modal, TextInput } from 'react-native';
 import axios from 'axios';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { Picker } from '@react-native-picker/picker';  // Import the Picker component
 
 const MainScreen = ({ route }) => {
   const { userIndex } = route.params;
@@ -9,6 +10,8 @@ const MainScreen = ({ route }) => {
   const [loading, setLoading] = useState(true);
   const [showOptions, setShowOptions] = useState(null);
   const [animation] = useState(new Animated.Value(0));
+  const [isModalVisible, setIsModalVisible] = useState(false);  
+  const [accountType, setAccountType] = useState('');  
   const navigation = useNavigation();
 
   const fetchCurrencyAccounts = async () => {
@@ -25,12 +28,20 @@ const MainScreen = ({ route }) => {
 
   const handleDeleteAccount = async (accountId) => {
     try {
-      await axios.delete(`http://192.168.0.247:8000/api/currency-accounts/${accountId}/`);
-      Alert.alert('Success', 'Currency account deleted successfully.');
-      fetchCurrencyAccounts(); // Refresh accounts after deletion
+      const response = await axios.delete(`http://192.168.0.247:8000/api/currency-accounts/${accountId}/`);
+      if (response.status === 200 || response.status === 204 ) {
+        Alert.alert('Success', 'Currency account deleted successfully.');
+        fetchCurrencyAccounts();
+      } else {
+        Alert.alert('Error', 'Failed to delete currency account.');
+      }
     } catch (error) {
       console.error(error);
-      Alert.alert('Error', 'Failed to delete currency account.');
+      if (error.response && error.response.status === 400) {
+        Alert.alert('Error', 'Bad Request: Failed to delete currency account.');
+      } else {
+        Alert.alert('Error', 'An unexpected error occurred.');
+      }
     }
   };
 
@@ -74,6 +85,35 @@ const MainScreen = ({ route }) => {
     }
   };
 
+  const handleAddAccountButtonPress = () => {
+    setIsModalVisible(true);  // Show the modal when the button is pressed
+  };
+
+  const handleCreateAccount = async () => {
+    try {
+      const response = await axios.post('http://192.168.0.247:8000/api/currency-accounts/', {
+        currency_code: accountType,
+        user: userIndex,
+      });
+
+      if (response.status === 200 || response.status === 201) {
+        Alert.alert('Success', 'Currency account created and ready to use.');
+        setIsModalVisible(false);  // Close the modal after confirming
+        setAccountType('');  // Reset the input field
+        fetchCurrencyAccounts(); // Refresh the account list
+      } else {
+        Alert.alert('Error', 'Failed to create currency account.');
+      }
+    } catch (error) {
+      console.error(error);
+      if (error.response && error.response.status === 400) {
+        Alert.alert('Error', 'Bad Request: Failed to create currency account.');
+      } else {
+        Alert.alert('Error', 'An unexpected error occurred.');
+      }
+    }
+  };
+
   return (
     <TouchableWithoutFeedback onPress={handleBackgroundPress}>
       <View style={styles.container}>
@@ -106,8 +146,7 @@ const MainScreen = ({ route }) => {
                       transform: [{
                         translateY: animation.interpolate({ inputRange: [0, 1], outputRange: [-50, 0] })
                       }]
-                    }]}
-                  >
+                    }]}>
                     <TouchableOpacity
                       style={styles.optionButton}
                       onPress={() => {
@@ -127,11 +166,8 @@ const MainScreen = ({ route }) => {
                       <Text style={styles.optionButtonText}>Deposit History</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                      style={[
-                        styles.deleteButton,
-                        { opacity: account.balance !== "0.00" || account.currency_code === "PLN" ? 0.5 : 1 }
-                      ]}
-                      disabled={account.balance !== "0.00" || account.currency_code === "PLN" }
+                      style={[styles.deleteButton, { opacity: account.balance !== "0.00" || account.currency_code === "PLN" ? 0.5 : 1 }]}
+                      disabled={account.balance !== "0.00" || account.currency_code === "PLN"}
                       onPress={() => {
                         Alert.alert(
                           'Confirm Delete',
@@ -154,12 +190,58 @@ const MainScreen = ({ route }) => {
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity
-            style={styles.mainButton}
+            style={styles.exchangeButton}
             onPress={() => navigation.navigate('Exchange', { balances: currencyAccounts })}
           >
-            <Text style={styles.mainButtonText}>Exchange</Text>
+            <Text style={styles.exchangeButtonText}>Exchange</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.addAccountButton}
+            onPress={handleAddAccountButtonPress}
+          >
+            <Image
+              source={require('../assets/add-account-icon-plus.png')}
+              style={styles.addAccountIcon}
+            />
           </TouchableOpacity>
         </View>
+
+        <Modal
+          visible={isModalVisible}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => setIsModalVisible(false)}
+        >
+          <View style={styles.modalBackground}>
+            <View style={styles.modalContainer}>
+              <Text style={styles.modalTitle}>What account would you like to create?</Text>
+
+              {/* Picker dropdown for currency */}
+              <Picker
+                selectedValue={accountType}
+                onValueChange={(itemValue) => setAccountType(itemValue)}
+                style={styles.modalInput}
+              >
+                <Picker.Item label="US Dollar" value="USD" color="black" />
+                <Picker.Item label="Euro" value="EUR" color="black" />
+                <Picker.Item label="Japanese Yen" value="JPY" color="black" />
+                <Picker.Item label="British Pound" value="GBP" color="black" />
+                <Picker.Item label="Australian Dollar" value="AUD" color="black" />
+                <Picker.Item label="Canadian Dollar" value="CAD" color="black" />
+                <Picker.Item label="Swiss Franc" value="CHF" color="black" />
+                <Picker.Item label="Swedish Krona" value="SEK" color="black" />
+              </Picker>
+
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={handleCreateAccount}
+              >
+                <Text style={styles.modalButtonText}>Create Account</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
       </View>
     </TouchableWithoutFeedback>
   );
@@ -207,11 +289,16 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 5,
+    marginBottom: 10,
   },
   cardText: {
     fontSize: 16,
-    marginBottom: 5,
+  },
+  editProfileIcon: {
+    width: 30,
+    height: 30,
+    resizeMode: 'contain',
+    marginRight: 20,
   },
   optionsIcon: {
     position: 'absolute',
@@ -252,40 +339,98 @@ const styles = StyleSheet.create({
   optionButtonText: {
     fontSize: 16,
     color: 'black',
-    fontWeight: 'bold',
   },
   deleteButton: {
     padding: 10,
-    backgroundColor: 'red',
+    backgroundColor: '#ff4d4d',
     borderRadius: 5,
-    marginVertical: 5,
-    alignItems: 'center',
   },
   deleteButtonText: {
     fontSize: 16,
-    color: 'white',
-    fontWeight: 'bold',
+    color: '#fff',
   },
   buttonContainer: {
-    marginVertical: 10,
-    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'absolute',
+    bottom: 20,
+    left: 0,
+    right: 0,
   },
-  mainButton: {
+  exchangeButton: {
     padding: 15,
     backgroundColor: '#007BFF',
     borderRadius: 5,
+    width: '90%',
     alignItems: 'center',
   },
-  mainButtonText: {
-    color: 'white',
+  exchangeButtonText: {
     fontSize: 18,
-    fontWeight: 'bold',
+    color: 'white',
   },
-  editProfileIcon: {
+  addAccountButton: {
+    position: 'absolute',
+    bottom: 70,
+    right: 20,
+    width: 60,
+    height: 60,
+    backgroundColor: '#007BFF',
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 5 },
+    elevation: 5,
+  },
+  addAccountIcon: {
     width: 30,
     height: 30,
     resizeMode: 'contain',
-    marginRight: 20,
+    tintColor: 'white',
+  },
+  modalBackground: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContainer: {
+    width: '70%',
+    padding: 20,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  modalText: {
+    fontSize: 16,
+    marginBottom: 10,
+  },
+  modalInput: {
+    width: '100%',
+    height: 200,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+  },
+  modalButton: {
+    paddingVertical: 10,
+    backgroundColor: '#007BFF',
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalButtonText: {
+    fontSize: 16,
+    color: '#fff',
   },
 });
 
