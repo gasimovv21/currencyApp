@@ -1,9 +1,11 @@
-from django.contrib.auth import get_user_model
+from django.contrib.auth import authenticate, login, logout
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from .models import User, Transaction, DepositHistory, AccountHistory
-from .serializers import TransactionSerializer, DepositHistorySerializer, AccountHistorySerializer
+from .serializers import TransactionSerializer, DepositHistorySerializer, AccountHistorySerializer, UserSerializer
+from django.contrib.auth.hashers import make_password, check_password
+
 
 from .utils import (
     getUsersList, createUser, getUserDetail, updateUser, deleteUser,
@@ -117,3 +119,36 @@ def getAccountHistory(request, user_id):
     histories = AccountHistory.objects.filter(user_id=user_id).order_by('-created_at')
     serializer = AccountHistorySerializer(histories, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+@api_view(['POST'])
+def register_user(request):
+    data = request.data
+    data['password'] = make_password(data.get('password'))
+    
+    serializer = UserSerializer(data=data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response({"message": "User registered successfully."}, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+def login_user(request):
+    username = request.data.get('username')
+    password = request.data.get('password')
+    
+    try:
+        user = User.objects.get(username=username)
+        if check_password(password, user.password):
+            login(request, user)
+            return Response({"message": "Login successful."}, status=status.HTTP_200_OK)
+        else:
+            return Response({"error": "Invalid password."}, status=status.HTTP_400_BAD_REQUEST)
+    except User.DoesNotExist:
+        return Response({"error": "User does not exist."}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['POST'])
+def logout_user(request):
+    logout(request)
+    return Response({"message": "Logged out successfully."}, status=status.HTTP_200_OK)

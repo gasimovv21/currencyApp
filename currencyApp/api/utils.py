@@ -129,8 +129,6 @@ def get_exchange_rate(currency_code, rate_type):
         return Response({"error": f"Invalid response format from NBP API."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-
-
 def convert_currency(user, from_currency, to_currency, amount):
     try:
         from_account = UserCurrencyAccount.objects.get(user=user, currency_code=from_currency)
@@ -179,7 +177,6 @@ def convert_currency(user, from_currency, to_currency, amount):
         AccountHistory.objects.create(user=user, currency=to_currency, amount=amount * rate, action='income')
 
     return Response({"message": "Conversion successful.", "transaction_id": transaction.transaction_id}, status=status.HTTP_201_CREATED)
-
 
 
 def deposit_to_account(user, user_currency_account_code, amount):

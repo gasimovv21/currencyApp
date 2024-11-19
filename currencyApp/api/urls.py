@@ -1,11 +1,18 @@
 from django.urls import path
 from .views import (getUsers, getUser, getCurrencyAccountsView, 
                     getCurrencyAccountView, getUserCurrencyAccountsView, 
-                    convertCurrency, depositToAccount, getAccountHistory
+                    convertCurrency, depositToAccount, getAccountHistory,
+                    register_user, login_user, logout_user,
 )
 
 
 urlpatterns = [
+
+
+    path('auth/register/', register_user, name='register'),
+    path('auth/login/', login_user, name='login'),
+    path('auth/logout/', logout_user, name='logout'),
+
     path('users/', getUsers, name='user-list'),
     path('users/<int:pk>/', getUser, name='user-detail'),
     path('currency-accounts/', getCurrencyAccountsView, name='currency-account-list'),
@@ -15,4 +22,6 @@ urlpatterns = [
     path('currency-accounts/convert/<int:user_id>/', convertCurrency, name='convert-currency'),
     path('currency-accounts/deposit/<int:user_id>/', depositToAccount, name='deposit-to-account'),
     path('currency-accounts/history/<int:user_id>/', getAccountHistory, name='account-history'),
+
+
 ]
