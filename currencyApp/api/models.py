@@ -134,8 +134,8 @@ class Transaction(models.Model):
 
 class AccountHistory(models.Model):
     ACTION_CHOICES = [
-        ('deposit', 'Deposit'),
-        ('withdraw', 'Withdraw'),
+        ('income', 'Income'),
+        ('expense', 'Expense'),
     ]
 
     history_id = models.AutoField(primary_key=True)

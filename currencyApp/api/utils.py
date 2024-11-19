@@ -170,8 +170,8 @@ def convert_currency(user, from_currency, to_currency, amount):
             amount=amount
         )
 
-        AccountHistory.objects.create(user=user, currency=from_currency, amount=amount, action='withdraw')
-        AccountHistory.objects.create(user=user, currency=to_currency, amount=amount * rate, action='deposit')
+        AccountHistory.objects.create(user=user, currency=from_currency, amount=amount, action='expense')
+        AccountHistory.objects.create(user=user, currency=to_currency, amount=amount * rate, action='income')
 
     return Response({"message": "Conversion successful.", "transaction_id": transaction.transaction_id}, status=status.HTTP_201_CREATED)
 
