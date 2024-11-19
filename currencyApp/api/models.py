@@ -81,14 +81,7 @@ class UserCurrencyAccount(models.Model):
         ('AUD', 'Australian Dollar'),
         ('CAD', 'Canadian Dollar'),
         ('CHF', 'Swiss Franc'),
-        ('CNY', 'Chinese Yuan'),
         ('SEK', 'Swedish Krona'),
-        ('NZD', 'New Zealand Dollar'),
-        ('MXN', 'Mexican Peso'),
-        ('SGD', 'Singapore Dollar'),
-        ('HKD', 'Hong Kong Dollar'),
-        ('NOK', 'Norwegian Krone'),
-        ('KRW', 'South Korean Won'),
         ('PLN', 'Polish Zloty'),  # Default
     ]
 
