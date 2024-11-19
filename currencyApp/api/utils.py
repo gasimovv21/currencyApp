@@ -140,14 +140,15 @@ def convert_currency(user, from_currency, to_currency, amount):
 
     amount = Decimal(amount)
 
-    if from_account.balance < amount:
-        return Response({"error": f"Insufficient balance in {from_currency} account."}, status=status.HTTP_400_BAD_REQUEST)
-
     with db_transaction.atomic():
         if from_currency == 'PLN':
             rate = get_exchange_rate(to_currency, 'ask')
             if isinstance(rate, Response):
                 return rate
+            
+            if from_account.balance < amount * rate:
+                return Response({"error": "Insufficient balance in PLN account."}, status=status.HTTP_400_BAD_REQUEST)
+    
             from_account.balance -= amount * rate
             from_account.save()
 
@@ -157,6 +158,10 @@ def convert_currency(user, from_currency, to_currency, amount):
             rate = get_exchange_rate(from_currency, 'bid')
             if isinstance(rate, Response):
                 return rate
+            
+            if from_account.balance < amount:
+                return Response({"error": f"Insufficient balance in {from_currency} account."}, status=status.HTTP_400_BAD_REQUEST)
+
             from_account.balance -= amount
             from_account.save()
 
