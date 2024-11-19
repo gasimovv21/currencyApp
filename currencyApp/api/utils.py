@@ -1,3 +1,4 @@
+import requests
 from django.db import IntegrityError
 from rest_framework.response import Response
 from rest_framework import status
@@ -114,6 +115,28 @@ def getUserCurrencyAccounts(request, user_id):
         return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
 
+def get_exchange_rate(currency_code, rate_type):
+    """
+    Получает курс обмена для указанной валюты из API NBP.
+    
+    :param currency_code: Код валюты (например, USD)
+    :param rate_type: Тип курса ('bid' или 'ask')
+    :return: Значение курса в Decimal
+    """
+    url = f"https://api.nbp.pl/api/exchangerates/rates/c/{currency_code}/?format=json"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
+        rate = data['rates'][0][rate_type]
+        return Decimal(rate)
+    except requests.exceptions.RequestException as e:
+        return Response({"error": f"Failed to fetch exchange rate: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    except KeyError:
+        return Response({"error": f"Invalid response format from NBP API."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
 
 def convert_currency(user, from_currency, to_currency, amount):
     try:
@@ -128,11 +151,24 @@ def convert_currency(user, from_currency, to_currency, amount):
         return Response({"error": f"Insufficient balance in {from_currency} account."}, status=status.HTTP_400_BAD_REQUEST)
 
     with db_transaction.atomic():
-        from_account.balance -= amount
-        from_account.save()
+        if from_currency == 'PLN':
+            rate = get_exchange_rate(to_currency, 'ask')
+            if isinstance(rate, Response):
+                return rate
+            from_account.balance -= amount * rate
+            from_account.save()
 
-        to_account.balance += amount
-        to_account.save()
+            to_account.balance += amount
+            to_account.save()
+        else:
+            rate = get_exchange_rate(from_currency, 'bid')
+            if isinstance(rate, Response):
+                return rate
+            from_account.balance -= amount
+            from_account.save()
+
+            to_account.balance += amount * rate
+            to_account.save()
 
         transaction = Transaction.objects.create(
             user=user,
@@ -142,9 +178,10 @@ def convert_currency(user, from_currency, to_currency, amount):
         )
 
         AccountHistory.objects.create(user=user, currency=from_currency, amount=amount, action='withdraw')
-        AccountHistory.objects.create(user=user, currency=to_currency, amount=amount, action='deposit')
+        AccountHistory.objects.create(user=user, currency=to_currency, amount=amount * rate, action='deposit')
 
     return Response({"message": "Conversion successful.", "transaction_id": transaction.transaction_id}, status=status.HTTP_201_CREATED)
+
 
 
 def deposit_to_account(user, user_currency_account_code, amount):
