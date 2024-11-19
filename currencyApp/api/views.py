@@ -87,6 +87,8 @@ def depositToAccount(request, user_id):
         if currency_code:
             deposits = deposits.filter(user_currency_account__currency_code=currency_code)
 
+        deposits = deposits.order_by('-created_at')
+
         serializer = DepositHistorySerializer(deposits, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -112,6 +114,6 @@ def depositToAccount(request, user_id):
 
 @api_view(['GET'])
 def getAccountHistory(request, user_id):
-    histories = AccountHistory.objects.filter(user_id=user_id)
+    histories = AccountHistory.objects.filter(user_id=user_id).order_by('-created_at')
     serializer = AccountHistorySerializer(histories, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)

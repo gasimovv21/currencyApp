@@ -116,13 +116,6 @@ def getUserCurrencyAccounts(request, user_id):
 
 
 def get_exchange_rate(currency_code, rate_type):
-    """
-    Получает курс обмена для указанной валюты из API NBP.
-    
-    :param currency_code: Код валюты (например, USD)
-    :param rate_type: Тип курса ('bid' или 'ask')
-    :return: Значение курса в Decimal
-    """
     url = f"https://api.nbp.pl/api/exchangerates/rates/c/{currency_code}/?format=json"
     try:
         response = requests.get(url)

@@ -22,7 +22,7 @@ class TransactionSerializer(serializers.ModelSerializer):
 
 
     def get_created_at(self, obj):
-        return obj.created_at.strftime('%d-%m-%Y')
+        return obj.created_at.strftime('%d-%m-%Y %H:%M:%S')
 
 
 class DepositHistorySerializer(serializers.ModelSerializer):
@@ -37,7 +37,7 @@ class DepositHistorySerializer(serializers.ModelSerializer):
         return obj.user_currency_account.currency_code
 
     def get_created_at(self, obj):
-        return obj.created_at.strftime('%d-%m-%Y')
+        return obj.created_at.strftime('%d-%m-%Y %H:%M:%S')
 
 
 class AccountHistorySerializer(serializers.ModelSerializer):
@@ -48,4 +48,4 @@ class AccountHistorySerializer(serializers.ModelSerializer):
         fields = ['history_id', 'currency', 'action', 'amount', 'user', 'created_at']
     
     def get_created_at(self, obj):
-        return obj.created_at.strftime('%d-%m-%Y')
+        return obj.created_at.strftime('%d-%m-%Y %H:%M:%S')
