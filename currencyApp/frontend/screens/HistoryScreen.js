@@ -38,18 +38,18 @@ const HistoryScreen = () => {
                 <Text
                   style={[
                     styles.actionText,
-                    { color: item.action === 'deposit' ? '#4caf50' : '#f44336' },
+                    { color: item.action === 'income' ? '#4caf50' : '#f44336' },
                   ]}
                 >
-                  {item.action === 'deposit' ? 'Deposit' : 'Withdraw'}
+                  {item.action === 'income' ? 'Income' : 'Expense'}
                 </Text>
                 <Text
                   style={[
                     styles.amountText,
-                    { color: item.action === 'deposit' ? '#4caf50' : '#f44336' },
+                    { color: item.action === 'income' ? '#4caf50' : '#f44336' },
                   ]}
                 >
-                  {item.action === 'deposit' ? `+${item.amount}` : `-${item.amount}`}
+                  {item.action === 'income' ? `+${item.amount}` : `-${item.amount}`}
                 </Text>
               </View>
               <Text style={styles.currencyText}>Currency: {item.currency}</Text>
