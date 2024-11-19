@@ -78,13 +78,13 @@ const ExchangeScreen = ({ navigation }) => {
     }
   }, [userCurrencies]);
 
-  const navigateToOperation = (fromCurrency, toCurrency, rate, type) => {
+  const navigateToOperation = (fromCurrency, toCurrency, rate, type, exchangeRate) => {
     navigation.navigate('Operation', {
       fromCurrency,
       toCurrency,
       rate,
       type,
-      exchangeRate: type === 'SELL' ? exchangeRates[fromCurrency]?.[rate] : exchangeRates[fromCurrency]?.[rate],
+      exchangeRate,
     });
   };
 
@@ -102,14 +102,14 @@ const ExchangeScreen = ({ navigation }) => {
             <View style={styles.row}>
               <TouchableOpacity
                 style={styles.button}
-                onPress={() => navigateToOperation(currency.currency_code, 'PLN', 'bid', 'SELL')}
+                onPress={() => navigateToOperation(currency.currency_code, 'PLN', 'bid', 'SELL', String(exchangeRates[currency.currency_code]?.['bid']))}
               >
                 <Text style={styles.buttonText}>SELL {currency.currency_code}</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={styles.button}
-                onPress={() => navigateToOperation(currency.currency_code, 'PLN', 'ask', 'BUY')}
+                onPress={() => navigateToOperation('PLN', currency.currency_code, 'ask', 'BUY', String(exchangeRates[currency.currency_code]?.['ask']))}
               >
                 <Text style={styles.buttonText}>BUY {currency.currency_code}</Text>
               </TouchableOpacity>

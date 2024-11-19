@@ -27,11 +27,7 @@ const OperationScreen = ({ route, navigation }) => {
     setAmount1(formattedValue);
     if (formattedValue) {
       const convertedValue = parseFloat(formattedValue) * parseFloat(exchangeRate);
-
-
     // exchangeRate: type === 'SELL' ? exchangeRates[fromCurrency]?.[rate] : exchangeRates[toCurrency]?.[rate],
-
-
       setAmount2(convertedValue.toFixed(2));
     } else {
       setAmount2('');
@@ -63,8 +59,9 @@ const OperationScreen = ({ route, navigation }) => {
     try {
       const payload = {
         from_currency: fromCurrency,
-        to_currency: fromCurrency,
-        amount: numericAmount2,
+        to_currency: toCurrency,
+        amount: numericAmount1,
+        
     };
       
       const userId = 1;
@@ -98,7 +95,7 @@ const OperationScreen = ({ route, navigation }) => {
         Alert.alert('Conversion failed', 'Something went wrong, please try again later.');
       }
     } catch (error) {
-      console.error('Conversion Error:', error.response?.data || error.message);
+      //console.error('Conversion Error:', error.response?.data || error.message);
       Alert.alert('Error', 'Failed to complete the conversion. Please check your inputs and try again.');
     }
   };
@@ -107,7 +104,7 @@ const OperationScreen = ({ route, navigation }) => {
   const fetchChartData = async () => {
     try {
       const response = await fetch(
-        `https://api.nbp.pl/api/exchangerates/rates/c/${fromCurrency}/last/10/?format=json`
+        `https://api.nbp.pl/api/exchangerates/rates/c/${(type === 'SELL' ? fromCurrency : toCurrency).toLowerCase()}/last/10/?format=json`
       );
 
       if (response.ok) {
@@ -172,7 +169,7 @@ const OperationScreen = ({ route, navigation }) => {
 
           <TextInput
             style={styles.input}
-            placeholder={`Enter amount in ${fromCurrency}`}
+            placeholder={`Enter amount in ${type === 'SELL' ? fromCurrency : toCurrency}`}
             keyboardType="numeric"
             value={amount1}
             onChangeText={handleAmount1Change}
@@ -184,7 +181,7 @@ const OperationScreen = ({ route, navigation }) => {
 
           <TextInput
             style={styles.input}
-            placeholder={`Enter amount in ${toCurrency}`}
+            placeholder={`Enter amount in ${type === 'SELL' ? toCurrency : fromCurrency}`}
             keyboardType="numeric"
             value={amount2}
             onChangeText={handleAmount2Change}
