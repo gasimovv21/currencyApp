@@ -145,8 +145,16 @@ def login_user(request):
     try:
         user = User.objects.get(username=username)
         if check_password(password, user.password):
-            login(request, user) 
-            return Response({"message": "Login successful."}, status=status.HTTP_200_OK)
+            login(request, user)
+            user_data = {
+                "user_id": user.user_id,
+                "username": user.username,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "phone_number": user.phone_number,
+                "email": user.email,
+            }
+            return Response({"message": "Login successful.", "user": user_data}, status=status.HTTP_200_OK)
         else:
             return Response({"error": "Invalid credentials."}, status=status.HTTP_400_BAD_REQUEST)
     except User.DoesNotExist:

@@ -6,6 +6,7 @@ from .models import User, UserCurrencyAccount, Transaction, AccountHistory, Depo
 from .serializers import UserSerializer, UserCurrencyAccountSerializer
 from django.db import transaction as db_transaction
 from decimal import Decimal
+from django.contrib.auth.hashers import make_password
 
 
 def getUsersList(request):
@@ -35,7 +36,11 @@ def updateUser(request, pk):
     except User.DoesNotExist:
         return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
     
-    serializer = UserSerializer(user, data=request.data, partial=True)
+    data = request.data
+    if "password" in data:
+        data["password"] = make_password(data["password"])
+    
+    serializer = UserSerializer(user, data=data, partial=True)
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
