@@ -5,32 +5,28 @@ const LoginScreen = ({ navigation }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = () => {
-    const userIndex = 1;
-    navigation.navigate('Main', { userIndex });
-  };
-
-    // const handleLogin = async () => {
+    const handleLogin = async () => {
     
-  //   try {
-  //     const response = await fetch('/api/users/', {
-  //       method: 'POST',
-  //       headers: { 'Content-Type': 'application/json' },
-  //       body: JSON.stringify({ username, password }),
-  //     });
+    try {
+      const response = await fetch('http://192.168.0.247:8000/api/login/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
   
-  //     if (response.ok) {
-  //       const data = await response.json();
-  //       if (data) {
-  //         navigation.navigate('Main', { data });
-  //       }
-  //     } else {
-  //       Alert.alert('Login Failed', 'Invalid username or password.');
-  //     }
-  //   } catch (error) {
-  //     Alert.alert('Error:');
-  //   }
-  // };
+      if (response.ok) {
+        const data = await response.json();
+        if (data) {
+          navigation.navigate('Main', { data });
+          console.log(data)
+        }
+      } else {
+        Alert.alert('Login Failed', 'Invalid username or password.');
+      }
+    } catch (error) {
+      Alert.alert('Error:');
+    }
+  };
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
