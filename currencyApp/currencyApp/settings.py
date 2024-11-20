@@ -90,9 +90,6 @@ STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_PERMISSION_CLASSES' : [
@@ -101,5 +98,3 @@ REST_FRAMEWORK = {
 }
 
 CORS_ALLOW_ALL_ORIGINS = True
-
-AUTH_USER_MODEL = 'api.User'

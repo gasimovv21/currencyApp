@@ -9,9 +9,9 @@ from .views import (getUsers, getUser, getCurrencyAccountsView,
 urlpatterns = [
 
 
-    path('auth/register/', register_user, name='register'),
-    path('auth/login/', login_user, name='login'),
-    path('auth/logout/', logout_user, name='logout'),
+    path('register/', register_user, name='register'),
+    path('login/', login_user, name='login'),
+    path('logout/', logout_user, name='logout'),
 
     path('users/', getUsers, name='user-list'),
     path('users/<int:pk>/', getUser, name='user-detail'),

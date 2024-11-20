@@ -126,27 +126,32 @@ def getAccountHistory(request, user_id):
 def register_user(request):
     data = request.data
     data['password'] = make_password(data.get('password'))
-    
+
     serializer = UserSerializer(data=data)
     if serializer.is_valid():
         serializer.save()
         return Response({"message": "User registered successfully."}, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 @api_view(['POST'])
 def login_user(request):
     username = request.data.get('username')
     password = request.data.get('password')
-    
+
+    if not username or not password:
+        return Response({"error": "Username and password are required."}, status=status.HTTP_400_BAD_REQUEST)
+
     try:
         user = User.objects.get(username=username)
         if check_password(password, user.password):
-            login(request, user)
+            login(request, user) 
             return Response({"message": "Login successful."}, status=status.HTTP_200_OK)
         else:
-            return Response({"error": "Invalid password."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "Invalid credentials."}, status=status.HTTP_400_BAD_REQUEST)
     except User.DoesNotExist:
         return Response({"error": "User does not exist."}, status=status.HTTP_404_NOT_FOUND)
+
 
 @api_view(['POST'])
 def logout_user(request):
