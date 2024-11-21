@@ -64,12 +64,19 @@ CurrencyApp is a comprehensive backend application for managing users, currency 
    python manage.py migrate
    ```
 
-5. **Start the Django development server**:
+5. **Set up the frontend**:
+   ```bash
+   cd frontend
+   npm install
+   npm run build
+   ```
+
+6. **Start the Django development server**:
    ```bash
    python manage.py runserver
    ```
 
-6. **Access the API**: Open [http://127.0.0.1:8000/api/](http://127.0.0.1:8000/api/) in your browser or Postman.
+7. **Access the API**: Open [http://127.0.0.1:8000/api/](http://127.0.0.1:8000/api/) in your browser or Postman.
 
 ---
 
