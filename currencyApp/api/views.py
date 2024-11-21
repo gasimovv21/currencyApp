@@ -124,14 +124,16 @@ def getAccountHistory(request, user_id):
 
 @api_view(['POST'])
 def register_user(request):
-    data = request.data
+    data = request.data.copy()
     data['password'] = make_password(data.get('password'))
-
+    
     serializer = UserSerializer(data=data)
     if serializer.is_valid():
         serializer.save()
         return Response({"message": "User registered successfully."}, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 
 
 @api_view(['POST'])
