@@ -70,13 +70,20 @@ CurrencyApp is a comprehensive backend application for managing users, currency 
    npm install
    npm run build
    ```
+   - Check your IPv4 address to set baseURL for running the server on your local network.
+   ```bash
+   ipconfig
+   ```
+   - Look for your "Wireless LAN adapter Wi-Fi" section, and note your IPv4 address (e.g., 192.168.x.x).
+   - Open the App.js file and insert your IPv4 address at the specified location on line 17.
 
 6. **Start the Django development server**:
+   - Now, start the Django development server using your IPv4 address:
    ```bash
-   python manage.py runserver
+   python manage.py runserver <your_IPv4_here>:8000
    ```
 
-7. **Access the API**: Open [http://127.0.0.1:8000/api/](http://127.0.0.1:8000/api/) in your browser or Postman.
+7. **Access the API**: Open [http://<your_IPv4_here>:8000/api/](http://your_IPv4_here:8000/api/) in your browser or Postman.
 
 ---
 
