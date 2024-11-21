@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableWithoutFeedback, Alert, Image, Animated, ScrollView, TouchableOpacity, Modal, TextInput } from 'react-native';
+import { View, Text, StyleSheet, TouchableWithoutFeedback, Alert, Image, Animated, ScrollView, TouchableOpacity, Modal } from 'react-native';
 import axios from 'axios';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { Picker } from '@react-native-picker/picker';  // Import the Picker component
+import { Picker } from '@react-native-picker/picker';
 
 const MainScreen = ({ route }) => {
-  const { userIndex } = route.params;
+  const { user_id, first_name } = route.params;
   const [currencyAccounts, setCurrencyAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showOptions, setShowOptions] = useState(null);
@@ -16,11 +16,10 @@ const MainScreen = ({ route }) => {
 
   const fetchCurrencyAccounts = async () => {
     try {
-      const response = await axios.get(`http://192.168.0.247:8000/api/currency-accounts/user/${userIndex}/`);
+      const response = await axios.get(`http://192.168.0.247:8000/api/currency-accounts/user/${user_id}/`);
       setCurrencyAccounts(response.data);
       setLoading(false);
     } catch (error) {
-      console.error(error);
       Alert.alert('Error', 'Failed to fetch currency accounts');
       setLoading(false);
     }
@@ -54,7 +53,7 @@ const MainScreen = ({ route }) => {
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <TouchableWithoutFeedback onPress={() => navigation.navigate('EditProfile')}>
+        <TouchableWithoutFeedback onPress={() => navigation.navigate('EditProfile', { user_id: user_id })}>
           <Image
             source={require('../assets/edit-profile-icon.png')}
             style={styles.editProfileIcon}
@@ -83,6 +82,10 @@ const MainScreen = ({ route }) => {
     if (showOptions !== null) {
       handleHideOptions();
     }
+    if (isModalVisible) {
+      setIsModalVisible(false);  // Close modal if clicked outside
+      setAccountType(''); // Reset accountType
+    }
   };
 
   const handleAddAccountButtonPress = () => {
@@ -93,7 +96,7 @@ const MainScreen = ({ route }) => {
     try {
       const response = await axios.post('http://192.168.0.247:8000/api/currency-accounts/', {
         currency_code: accountType,
-        user: userIndex,
+        user: user_id,
       });
 
       if (response.status === 200 || response.status === 201) {
@@ -105,7 +108,6 @@ const MainScreen = ({ route }) => {
         Alert.alert('Error', 'Failed to create currency account.');
       }
     } catch (error) {
-      console.error(error);
       if (error.response && error.response.status === 400) {
         Alert.alert('Error', 'Bad Request: Failed to create currency account.');
       } else {
@@ -117,10 +119,12 @@ const MainScreen = ({ route }) => {
   return (
     <TouchableWithoutFeedback onPress={handleBackgroundPress}>
       <View style={styles.container}>
-        <Text style={styles.greeting}>Hello, {userIndex ? userIndex : 'User'}!</Text>
-        {loading ? (
-          <Text>Loading accounts...</Text>
-        ) : (
+        <View style={styles.greetingContainer}>
+          <Text style={styles.greeting}>Hello, {first_name ? first_name : 'User'}!</Text>
+          {loading && <Text style={styles.loadingText}>Loading accounts...</Text>}
+        </View>
+
+        {!loading && (
           <ScrollView
             style={styles.cardsContainer}
             contentContainerStyle={styles.scrollViewContent}
@@ -146,11 +150,15 @@ const MainScreen = ({ route }) => {
                       transform: [{
                         translateY: animation.interpolate({ inputRange: [0, 1], outputRange: [-50, 0] })
                       }]
-                    }]}>
+                    }]}
+                  >
                     <TouchableOpacity
                       style={styles.optionButton}
                       onPress={() => {
-                        navigation.navigate('DepositScreen', { currencyCode: account.currency_code });
+                        navigation.navigate('DepositScreen', {
+                          currencyCode: account.currency_code,
+                          user_id: user_id
+                        });
                         handleHideOptions();
                       }}
                     >
@@ -159,7 +167,10 @@ const MainScreen = ({ route }) => {
                     <TouchableOpacity
                       style={styles.optionButton}
                       onPress={() => {
-                        navigation.navigate('DepositHistoryScreen', { currencyCode: account.currency_code });
+                        navigation.navigate('DepositHistoryScreen', {
+                          currencyCode: account.currency_code,
+                          user_id: user_id
+                        });
                         handleHideOptions();
                       }}
                     >
@@ -191,7 +202,11 @@ const MainScreen = ({ route }) => {
         <View style={styles.buttonContainer}>
           <TouchableOpacity
             style={styles.exchangeButton}
-            onPress={() => navigation.navigate('Exchange', { balances: currencyAccounts })}
+            onPress={() => navigation.navigate('Exchange', {
+              balances: currencyAccounts,
+              user_id: user_id,
+              first_name: first_name
+            })}
           >
             <Text style={styles.exchangeButtonText}>Exchange</Text>
           </TouchableOpacity>
@@ -217,7 +232,6 @@ const MainScreen = ({ route }) => {
             <View style={styles.modalContainer}>
               <Text style={styles.modalTitle}>What account would you like to create?</Text>
 
-              {/* Picker dropdown for currency */}
               <Picker
                 selectedValue={accountType}
                 onValueChange={(itemValue) => setAccountType(itemValue)}
@@ -233,12 +247,22 @@ const MainScreen = ({ route }) => {
                 <Picker.Item label="Swedish Krona" value="SEK" color="black" />
               </Picker>
 
-              <TouchableOpacity
-                style={styles.modalButton}
-                onPress={handleCreateAccount}
-              >
-                <Text style={styles.modalButtonText}>Create Account</Text>
-              </TouchableOpacity>
+              <View style={styles.modalButtonContainer}>
+                <TouchableOpacity
+                  style={styles.modalButton}
+                  onPress={handleCreateAccount}
+                >
+                  <Text style={styles.modalButtonText}>Create</Text>
+                </TouchableOpacity>
+
+                {/* Cancel button */}
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.cancelButton]}
+                  onPress={() => setIsModalVisible(false)} // Close the modal
+                >
+                  <Text style={styles.modalButtonText}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         </Modal>
@@ -255,21 +279,22 @@ const styles = StyleSheet.create({
     padding: 20,
     position: 'relative',
   },
+  greetingContainer: {
+    width: '100%',
+  },
   greeting: {
-    position: 'absolute',
-    top: 20,
-    left: 20,
     fontSize: 18,
     fontWeight: 'bold',
+    marginBottom: 10,
   },
   heading: {
     fontSize: 24,
-    marginBottom: 40,
-    marginTop: 60,
+    marginBottom: 30,
+    marginTop: 40,
   },
   cardsContainer: {
     width: '100%',
-    marginBottom: 20,
+    marginBottom: 60,
   },
   scrollViewContent: {
     alignItems: 'center',
@@ -421,12 +446,22 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
     borderRadius: 8,
   },
+  modalButtonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginTop: 20,
+  },
   modalButton: {
     paddingVertical: 10,
     backgroundColor: '#007BFF',
-    borderRadius: 8,
+    borderRadius: 4,
+    width: '48%',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  cancelButton: {
+    backgroundColor: 'red',
   },
   modalButtonText: {
     fontSize: 16,

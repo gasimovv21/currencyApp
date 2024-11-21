@@ -3,12 +3,10 @@ import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity } fr
 import axios from 'axios';
 
 const DepositScreen = ({ route, navigation }) => {
-  const { currencyCode } = route.params;
+  const { currencyCode, user_id } = route.params;
   const [depositAmount, setDepositAmount] = useState('');
-  const userId = 1;
 
   const handleDeposit = async () => {
-    // Validate deposit amount
     if (!depositAmount || isNaN(depositAmount) || parseFloat(depositAmount) <= 0) {
       Alert.alert('Invalid Amount', 'Please enter a valid deposit amount.');
       return;
@@ -18,7 +16,7 @@ const DepositScreen = ({ route, navigation }) => {
       const depositData = { user_currency_account_code: currencyCode, amount: depositAmount };
 
       const response = await axios.post(
-        `http://192.168.0.247:8000/api/currency-accounts/deposit/${userId}/`,
+        `http://192.168.0.247:8000/api/currency-accounts/deposit/${user_id}/`,
         depositData,
         {
           headers: {
@@ -29,7 +27,7 @@ const DepositScreen = ({ route, navigation }) => {
 
       if (response.status === 200 || response.status === 201) {
         Alert.alert('Deposit Successful', `You have successfully deposited ${depositAmount} ${currencyCode}.`);
-        navigation.goBack();  // Navigate back to the main screen after deposit
+        navigation.goBack();
       } else {
         Alert.alert('Deposit Failed', 'Something went wrong, please try again later.');
       }
@@ -40,7 +38,6 @@ const DepositScreen = ({ route, navigation }) => {
   };
 
   const handleInputChange = (value) => {
-    // Replace commas with periods
     const formattedValue = value.replace(',', '.');
     setDepositAmount(formattedValue);
   };
@@ -55,7 +52,7 @@ const DepositScreen = ({ route, navigation }) => {
         placeholder={`Enter deposit amount in ${currencyCode}`}
         keyboardType="numeric"
         value={depositAmount}
-        onChangeText={handleInputChange} // Update input value with formatted value
+        onChangeText={handleInputChange}
       />
 
       <TouchableOpacity style={styles.depositButton} onPress={handleDeposit}>

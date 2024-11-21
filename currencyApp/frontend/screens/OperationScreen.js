@@ -16,18 +16,16 @@ import { Dimensions } from 'react-native';
 import axios from 'axios';
 
 const OperationScreen = ({ route, navigation }) => {
-  const { fromCurrency, toCurrency, rate, type, exchangeRate } = route.params;
+  const { fromCurrency, toCurrency, rate, type, exchangeRate, user_id, first_name } = route.params;
   const [amount1, setAmount1] = useState('');
   const [amount2, setAmount2] = useState('');
   const [chartData, setChartData] = useState(null);
 
   const handleAmount1Change = (value) => {
-    console.log(exchangeRate)
     const formattedValue = value.replace(',', '.');
     setAmount1(formattedValue);
     if (formattedValue) {
       const convertedValue = parseFloat(formattedValue) * parseFloat(exchangeRate);
-    // exchangeRate: type === 'SELL' ? exchangeRates[fromCurrency]?.[rate] : exchangeRates[toCurrency]?.[rate],
       setAmount2(convertedValue.toFixed(2));
     } else {
       setAmount2('');
@@ -48,8 +46,6 @@ const OperationScreen = ({ route, navigation }) => {
   const handleConversion = async () => {
     const numericAmount1 = parseFloat(amount1);
     const numericAmount2 = parseFloat(amount2);
-    console.log(numericAmount1)
-    console.log(numericAmount2)
   
     if (isNaN(numericAmount1) || numericAmount1 <= 0 || isNaN(numericAmount2) || numericAmount2 <= 0) {
       Alert.alert('Invalid amount', 'Please enter valid numbers greater than 0.');
@@ -64,16 +60,12 @@ const OperationScreen = ({ route, navigation }) => {
         
     };
       
-      const userId = 1;
       const baseURL = 'http://192.168.0.247:8000';
   
-      const response = await axios.post(`${baseURL}/api/currency-accounts/convert/${userId}/`, payload, {
+      const response = await axios.post(`${baseURL}/api/currency-accounts/convert/${user_id}/`, payload, {
         headers: { 'Content-Type': 'application/json' },
       });
   
-      //console.log('API Response:', response);
-  
-      // Check for successful status codes (200 or 201)
       if (response.status === 200 || response.status === 201) {
         Alert.alert(
           'Success!',
@@ -84,18 +76,19 @@ const OperationScreen = ({ route, navigation }) => {
             {
               text: 'OK',
               onPress: () => {
-                navigation.navigate('Main', { userIndex: userId });
+                navigation.navigate('Main',{
+                  user_id: user_id,
+                  first_name: first_name
+                });
               },
             },
           ]
         );
         
       } else {
-        //console.error('Unexpected Response:', response.status);
         Alert.alert('Conversion failed', 'Something went wrong, please try again later.');
       }
     } catch (error) {
-      //console.error('Conversion Error:', error.response?.data || error.message);
       Alert.alert('Error', 'Failed to complete the conversion. Please check your inputs and try again.');
     }
   };

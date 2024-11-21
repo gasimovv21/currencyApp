@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, TouchableWithoutFeedback, Keyboard, ScrollView, Alert } from 'react-native';
 import axios from 'axios';
 
-const EditProfileScreen = ({ navigation }) => {
-  const userId = 1;
+const EditProfileScreen = ({ route, navigation }) => {
+  const { user_id } = route.params;
   const baseURL = 'http://192.168.0.247:8000';
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -16,7 +16,7 @@ const EditProfileScreen = ({ navigation }) => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await axios.get(`${baseURL}/api/users/${userId}/`);
+        const response = await axios.get(`${baseURL}/api/users/${user_id}/`);
         const data = response.data;
 
         setFirstName(data.first_name);
@@ -45,7 +45,7 @@ const EditProfileScreen = ({ navigation }) => {
         ...(password && { password }),
       };
 
-      await axios.put(`${baseURL}/api/users/${userId}/`, updatedData, {
+      await axios.put(`${baseURL}/api/users/${user_id}/`, updatedData, {
         headers: { 'Content-Type': 'application/json' },
       });
 

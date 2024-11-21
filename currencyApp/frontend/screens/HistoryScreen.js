@@ -2,14 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Alert } from 'react-native';
 import axios from 'axios';
 
-const HistoryScreen = () => {
-  const userId = 1;
+const HistoryScreen = ({ route }) => {
+  const { user_id } = route.params;
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const fetchHistory = async () => {
     try {
-      const response = await axios.get(`http://192.168.0.247:8000/api/currency-accounts/history/${userId}/`);
+      const response = await axios.get(`http://192.168.0.247:8000/api/currency-accounts/history/${user_id}/`);
       setHistory(response.data);
     } catch (error) {
       console.error(error);
