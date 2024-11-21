@@ -1,18 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Button, StyleSheet, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, Button, StyleSheet, ActivityIndicator, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import axios from 'axios';
 
-const ExchangeScreen = ({ navigation }) => {
+const ExchangeScreen = ({ route, navigation }) => {
+  const { user_id, first_name } = route.params;
   const [userCurrencies, setUserCurrencies] = useState([]);
   const [exchangeRates, setExchangeRates] = useState({});
   const [loading, setLoading] = useState(true);
 
-  const userId = 1;
-
   useEffect(() => {
     const fetchUserCurrencies = async () => {
       try {
-        const response = await axios.get(`http://192.168.0.247:8000/api/currency-accounts/user/${userId}/`);
+        const response = await axios.get(`http://192.168.0.247:8000/api/currency-accounts/user/${user_id}/`);
         setUserCurrencies(response.data);
       } catch (error) {
         console.error('Error fetching user currencies:', error);
@@ -21,7 +20,7 @@ const ExchangeScreen = ({ navigation }) => {
     };
 
     fetchUserCurrencies();
-  }, [userId]);
+  }, [user_id]);
 
   useEffect(() => {
     const fetchExchangeRates = async () => {
@@ -85,6 +84,8 @@ const ExchangeScreen = ({ navigation }) => {
       rate,
       type,
       exchangeRate,
+      user_id: user_id,
+      first_name: first_name
     });
   };
 
@@ -94,39 +95,54 @@ const ExchangeScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {userCurrencies
-        .filter((currency) => currency.currency_code !== 'PLN')
-        .map((currency) => (
-          <View key={currency.account_id} style={styles.card}>
-            <Text style={styles.cardTitle}>{currency.currency_code}/PLN</Text>
-            <View style={styles.row}>
-              <TouchableOpacity
-                style={styles.button}
-                onPress={() => navigateToOperation(currency.currency_code, 'PLN', 'bid', 'SELL', String(exchangeRates[currency.currency_code]?.['bid']))}
-              >
-                <Text style={styles.buttonText}>SELL {currency.currency_code}</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.button}
-                onPress={() => navigateToOperation('PLN', currency.currency_code, 'ask', 'BUY', String(exchangeRates[currency.currency_code]?.['ask']))}
-              >
-                <Text style={styles.buttonText}>BUY {currency.currency_code}</Text>
-              </TouchableOpacity>
+      <ScrollView
+            style={styles.cardsContainer}
+            contentContainerStyle={styles.scrollViewContent}
+            //keyboardShouldPersistTaps="handled"
+          >
+      {userCurrencies.filter((currency) => currency.currency_code !== 'PLN').length === 0 ? (
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>You don't have an account other than PLN account.</Text>
+          <Text style={styles.message}>If you would like to exchange money, you must create at least one account.</Text>
+        </View>
+      ) : (
+        userCurrencies
+          .filter((currency) => currency.currency_code !== 'PLN')
+          .map((currency) => (
+            <View key={currency.account_id} style={styles.card}>
+              <Text style={styles.cardTitle}>{currency.currency_code}/PLN</Text>
+              <View style={styles.row}>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={() => navigateToOperation(currency.currency_code, 'PLN', 'bid', 'SELL', String(exchangeRates[currency.currency_code]?.['bid']))}
+                >
+                  <Text style={styles.buttonText}>SELL {currency.currency_code}</Text>
+                </TouchableOpacity>
+  
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={() => navigateToOperation('PLN', currency.currency_code, 'ask', 'BUY', String(exchangeRates[currency.currency_code]?.['ask']))}
+                >
+                  <Text style={styles.buttonText}>BUY {currency.currency_code}</Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.rateContainer}>
+                {exchangeRates[currency.currency_code]?.error ? (
+                  <Text style={styles.rate}>Error: {exchangeRates[currency.currency_code].error}</Text>
+                ) : (
+                  <>
+                    <Text style={styles.rate}>Bid: {exchangeRates[currency.currency_code]?.bid || 'N/A'}</Text>
+                    <Text style={styles.rate}>Ask: {exchangeRates[currency.currency_code]?.ask || 'N/A'}</Text>
+                  </>
+                )}
+              </View>
             </View>
-            <View style={styles.rateContainer}>
-              {exchangeRates[currency.currency_code]?.error ? (
-                <Text style={styles.rate}>Error: {exchangeRates[currency.currency_code].error}</Text>
-              ) : (
-                <>
-                  <Text style={styles.rate}>Bid: {exchangeRates[currency.currency_code]?.bid || 'N/A'}</Text>
-                  <Text style={styles.rate}>Ask: {exchangeRates[currency.currency_code]?.ask || 'N/A'}</Text>
-                </>
-              )}
-            </View>
-          </View>
-        ))}
-      <Button title="Exchange History" onPress={() => navigation.navigate('History')} />
+          ))
+      )}
+      <Button title="Exchange History" onPress={() => navigation.navigate('History', {
+        user_id: user_id
+      })} />
+      </ScrollView>
     </View>
   );
 };
@@ -149,6 +165,12 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 5,
     elevation: 3,
+  },
+  cardsContainer: {
+    width: '100%',
+  },
+  scrollViewContent: {
+    alignItems: 'center',
   },
   cardTitle: {
     fontSize: 20,

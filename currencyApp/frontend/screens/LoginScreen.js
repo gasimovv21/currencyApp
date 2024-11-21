@@ -13,20 +13,22 @@ const LoginScreen = ({ navigation }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
       });
-  
+    
       if (response.ok) {
         const data = await response.json();
         if (data) {
-          navigation.navigate('Main', { data });
-          console.log(data)
+          navigation.navigate('Main', {
+            user_id: data.user.user_id,
+            first_name: data.user.first_name
+          });
         }
       } else {
         Alert.alert('Login Failed', 'Invalid username or password.');
       }
     } catch (error) {
-      Alert.alert('Error:');
+      Alert.alert('Error:', error.message);
     }
-  };
+};
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>

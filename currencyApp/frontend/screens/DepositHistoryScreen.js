@@ -3,16 +3,15 @@ import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-nat
 import axios from 'axios';
 
 const DepositHistoryScreen = ({ route }) => {
-  const { currencyCode } = route.params;
+  const { currencyCode, user_id } = route.params;
   const [depositHistory, setDepositHistory] = useState([]);
   const [loading, setLoading] = useState(true);
-  const userId = 1;
 
   useEffect(() => {
     const fetchDepositHistory = async () => {
       try {
         const response = await axios.get(
-          `http://192.168.0.247:8000/api/currency-accounts/deposit/${userId}/?currency_code=${currencyCode}`
+          `http://192.168.0.247:8000/api/currency-accounts/deposit/${user_id}/?currency_code=${currencyCode}`
         );
         setDepositHistory(response.data);
       } catch (error) {

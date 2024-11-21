@@ -8,6 +8,7 @@ import {
   Text,
   TouchableWithoutFeedback,
   Keyboard,
+  Alert,
   ScrollView,
   Modal,
 } from 'react-native';
@@ -33,16 +34,15 @@ const RegisterScreen = ({ navigation }) => {
   const handleRegister = async () => {
     // Validation before sending the request
     if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match.');
+      Alert.alert('Oops!', 'Passwords do not match.');
       return;
     }
     if (!isOver18) {
-      alert('You must confirm that you are over 18.');
+      Alert.alert('Please', 'You must confirm that you are over 18 and accept View & Agreements for registering.');
       return;
     }
 
     try {
-      // API call
       const response = await axios.post('http://192.168.0.247:8000/api/register/', {
         username: formData.username,
         password: formData.password,
@@ -52,13 +52,10 @@ const RegisterScreen = ({ navigation }) => {
         email: formData.email,
       });
 
-      // Handle successful registration
-      console.log('Registration Success:', response.data);
       alert('Registration successful! Please log in.');
       navigation.navigate('Login');
     } catch (error) {
       // Handle errors
-      console.error('Registration Error:', error.response?.data || error.message);
       setErrors(error.response?.data);
     }
   };
@@ -154,12 +151,6 @@ const RegisterScreen = ({ navigation }) => {
           secureTextEntry
         />
 
-        <CustomCheckbox
-          isChecked={isOver18}
-          onPress={() => setIsOver18(!isOver18)}
-          label="I confirm I am over 18"
-        />
-
         <TouchableOpacity onPress={() => setModalVisible(true)}>
           <Text style={styles.agreementsButtonText}>View Agreements</Text>
         </TouchableOpacity>
@@ -171,6 +162,42 @@ const RegisterScreen = ({ navigation }) => {
         <TouchableOpacity onPress={() => navigation.navigate('Login')}>
           <Text style={styles.loginLink}>Already have an account? Log In</Text>
         </TouchableOpacity>
+
+        {/* Modal for displaying terms and conditions */}
+        <Modal
+          visible={isModalVisible}
+          animationType="slide"
+          transparent={true}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalHeading}>Terms & Conditions</Text>
+              <ScrollView>
+                <Text style={styles.modalText}>
+                  By creating an account, you agree to the following terms:
+                  {"\n\n"}1. The currency exchange platform is provided as is, without guarantees.
+                  {"\n\n"}2. Users must comply with applicable laws for all transactions.
+                  {"\n\n"}3. The platform reserves the right to suspend accounts in case of suspicious activity.
+                  {"\n\n"}4. Rates are subject to fluctuations based on market conditions.
+                  {"\n\n"}5. Users are responsible for securing their account credentials.
+                  {"\n\n"}Please read these terms carefully before proceeding.
+                </Text>
+          
+              </ScrollView>
+              <CustomCheckbox
+                  isChecked={isOver18}
+                  onPress={() => setIsOver18(!isOver18)}
+                  label="I certify that I am over 18 and accept the Terms of Use and Privacy Statement."
+                />
+              <TouchableOpacity
+                style={styles.doneButton}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={styles.doneButtonText}>Done</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
       </ScrollView>
     </TouchableWithoutFeedback>
   );
@@ -204,6 +231,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 15,
+    marginTop: 20,
   },
   checkboxLabel: {
     fontSize: 14,
@@ -243,6 +271,38 @@ const styles = StyleSheet.create({
     color: '#0066cc',
     fontSize: 14,
     marginTop: 10,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 8,
+    width: '80%',
+  },
+  modalHeading: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  modalText: {
+    fontSize: 16,
+    marginBottom: 20,
+  },
+  doneButton: {
+    backgroundColor: '#4CAF50',
+    padding: 10,
+    borderRadius: 8,
+    width: '100%',
+    alignItems: 'center',
+  },
+  doneButtonText: {
+    color: '#fff',
+    fontSize: 16,
   },
 });
 
