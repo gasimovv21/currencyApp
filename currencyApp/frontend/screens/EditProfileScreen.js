@@ -3,8 +3,7 @@ import { View, Text, TextInput, Button, StyleSheet, TouchableWithoutFeedback, Ke
 import axios from 'axios';
 
 const EditProfileScreen = ({ route, navigation }) => {
-  const { user_id } = route.params;
-  const baseURL = 'http://192.168.0.247:8000';
+  const { user_id, baseURL } = route.params;
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');

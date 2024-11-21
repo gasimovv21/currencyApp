@@ -16,7 +16,7 @@ import { Dimensions } from 'react-native';
 import axios from 'axios';
 
 const OperationScreen = ({ route, navigation }) => {
-  const { fromCurrency, toCurrency, rate, type, exchangeRate, user_id, first_name } = route.params;
+  const { fromCurrency, toCurrency, rate, type, exchangeRate, user_id, first_name, baseURL } = route.params;
   const [amount1, setAmount1] = useState('');
   const [amount2, setAmount2] = useState('');
   const [chartData, setChartData] = useState(null);
@@ -59,8 +59,6 @@ const OperationScreen = ({ route, navigation }) => {
         amount: numericAmount1,
         
     };
-      
-      const baseURL = 'http://192.168.0.247:8000';
   
       const response = await axios.post(`${baseURL}/api/currency-accounts/convert/${user_id}/`, payload, {
         headers: { 'Content-Type': 'application/json' },

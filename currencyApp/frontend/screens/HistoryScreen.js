@@ -3,13 +3,13 @@ import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Alert } from 're
 import axios from 'axios';
 
 const HistoryScreen = ({ route }) => {
-  const { user_id } = route.params;
+  const { user_id, baseURL } = route.params;
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const fetchHistory = async () => {
     try {
-      const response = await axios.get(`http://192.168.0.247:8000/api/currency-accounts/history/${user_id}/`);
+      const response = await axios.get(`${baseURL}/api/currency-accounts/history/${user_id}/`);
       setHistory(response.data);
     } catch (error) {
       console.error(error);

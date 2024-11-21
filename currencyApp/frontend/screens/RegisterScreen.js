@@ -13,7 +13,8 @@ import {
   Modal,
 } from 'react-native';
 
-const RegisterScreen = ({ navigation }) => {
+const RegisterScreen = ({ route, navigation }) => {
+  const { baseURL } = route.params;
   const [formData, setFormData] = useState({
     username: '',
     password: '',
@@ -43,7 +44,7 @@ const RegisterScreen = ({ navigation }) => {
     }
 
     try {
-      const response = await axios.post('http://192.168.0.247:8000/api/register/', {
+      const response = await axios.post(`${baseURL}/api/register/`, {
         username: formData.username,
         password: formData.password,
         first_name: formData.firstName,
@@ -55,7 +56,6 @@ const RegisterScreen = ({ navigation }) => {
       alert('Registration successful! Please log in.');
       navigation.navigate('Login');
     } catch (error) {
-      // Handle errors
       setErrors(error.response?.data);
     }
   };
@@ -163,7 +163,6 @@ const RegisterScreen = ({ navigation }) => {
           <Text style={styles.loginLink}>Already have an account? Log In</Text>
         </TouchableOpacity>
 
-        {/* Modal for displaying terms and conditions */}
         <Modal
           visible={isModalVisible}
           animationType="slide"

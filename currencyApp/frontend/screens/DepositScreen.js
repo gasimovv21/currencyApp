@@ -3,7 +3,7 @@ import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity } fr
 import axios from 'axios';
 
 const DepositScreen = ({ route, navigation }) => {
-  const { currencyCode, user_id } = route.params;
+  const { currencyCode, user_id, baseURL } = route.params;
   const [depositAmount, setDepositAmount] = useState('');
 
   const handleDeposit = async () => {
@@ -16,7 +16,7 @@ const DepositScreen = ({ route, navigation }) => {
       const depositData = { user_currency_account_code: currencyCode, amount: depositAmount };
 
       const response = await axios.post(
-        `http://192.168.0.247:8000/api/currency-accounts/deposit/${user_id}/`,
+        `${baseURL}/api/currency-accounts/deposit/${user_id}/`,
         depositData,
         {
           headers: {

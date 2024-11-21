@@ -3,7 +3,7 @@ import { View, Text, Button, StyleSheet, ActivityIndicator, TouchableOpacity, Al
 import axios from 'axios';
 
 const ExchangeScreen = ({ route, navigation }) => {
-  const { user_id, first_name } = route.params;
+  const { user_id, first_name, baseURL } = route.params;
   const [userCurrencies, setUserCurrencies] = useState([]);
   const [exchangeRates, setExchangeRates] = useState({});
   const [loading, setLoading] = useState(true);
@@ -11,7 +11,7 @@ const ExchangeScreen = ({ route, navigation }) => {
   useEffect(() => {
     const fetchUserCurrencies = async () => {
       try {
-        const response = await axios.get(`http://192.168.0.247:8000/api/currency-accounts/user/${user_id}/`);
+        const response = await axios.get(`${baseURL}/api/currency-accounts/user/${user_id}/`);
         setUserCurrencies(response.data);
       } catch (error) {
         console.error('Error fetching user currencies:', error);

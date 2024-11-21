@@ -14,19 +14,20 @@ import HistoryScreen from './screens/HistoryScreen';
 const Stack = createStackNavigator();
 
 const App = () => {
+  const baseURL = '<your_IPv4_here>';
 
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Login">
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Register" component={RegisterScreen} />
-        <Stack.Screen name="Main" component={MainScreen} />
-        <Stack.Screen name="DepositScreen" component={DepositScreen} />
-        <Stack.Screen name="DepositHistoryScreen" component={DepositHistoryScreen} />
-        <Stack.Screen name="EditProfile" component={EditProfileScreen} />
-        <Stack.Screen name="Exchange" component={ExchangeScreen} />
-        <Stack.Screen name="Operation" component={OperationScreen} />
-        <Stack.Screen name="History" component={HistoryScreen} />
+        <Stack.Screen name="Login" component={LoginScreen} initialParams={{ baseURL }}/>
+        <Stack.Screen name="Register" component={RegisterScreen} initialParams={{ baseURL }}/>
+        <Stack.Screen name="Main" component={MainScreen} initialParams={{ baseURL }}/>
+        <Stack.Screen name="DepositScreen" component={DepositScreen} initialParams={{ baseURL }}/>
+        <Stack.Screen name="DepositHistoryScreen" component={DepositHistoryScreen} initialParams={{ baseURL }}/>
+        <Stack.Screen name="EditProfile" component={EditProfileScreen} initialParams={{ baseURL }}/>
+        <Stack.Screen name="Exchange" component={ExchangeScreen} initialParams={{ baseURL }}/>
+        <Stack.Screen name="Operation" component={OperationScreen} initialParams={{ baseURL }}/>
+        <Stack.Screen name="History" component={HistoryScreen} initialParams={{ baseURL }}/>
       </Stack.Navigator>
     </NavigationContainer>
   );

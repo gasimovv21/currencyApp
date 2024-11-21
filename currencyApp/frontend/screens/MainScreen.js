@@ -5,7 +5,7 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
 
 const MainScreen = ({ route }) => {
-  const { user_id, first_name } = route.params;
+  const { user_id, first_name, baseURL } = route.params;
   const [currencyAccounts, setCurrencyAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showOptions, setShowOptions] = useState(null);
@@ -16,7 +16,7 @@ const MainScreen = ({ route }) => {
 
   const fetchCurrencyAccounts = async () => {
     try {
-      const response = await axios.get(`http://192.168.0.247:8000/api/currency-accounts/user/${user_id}/`);
+      const response = await axios.get(`${baseURL}/api/currency-accounts/user/${user_id}/`);
       setCurrencyAccounts(response.data);
       setLoading(false);
     } catch (error) {
@@ -27,7 +27,7 @@ const MainScreen = ({ route }) => {
 
   const handleDeleteAccount = async (accountId) => {
     try {
-      const response = await axios.delete(`http://192.168.0.247:8000/api/currency-accounts/${accountId}/`);
+      const response = await axios.delete(`${baseURL}/api/currency-accounts/${accountId}/`);
       if (response.status === 200 || response.status === 204 ) {
         Alert.alert('Success', 'Currency account deleted successfully.');
         fetchCurrencyAccounts();
@@ -83,27 +83,27 @@ const MainScreen = ({ route }) => {
       handleHideOptions();
     }
     if (isModalVisible) {
-      setIsModalVisible(false);  // Close modal if clicked outside
-      setAccountType(''); // Reset accountType
+      setIsModalVisible(false);
+      setAccountType('');
     }
   };
 
   const handleAddAccountButtonPress = () => {
-    setIsModalVisible(true);  // Show the modal when the button is pressed
+    setIsModalVisible(true);
   };
 
   const handleCreateAccount = async () => {
     try {
-      const response = await axios.post('http://192.168.0.247:8000/api/currency-accounts/', {
+      const response = await axios.post(`${baseURL}/api/currency-accounts/`, {
         currency_code: accountType,
         user: user_id,
       });
 
       if (response.status === 200 || response.status === 201) {
         Alert.alert('Success', 'Currency account created and ready to use.');
-        setIsModalVisible(false);  // Close the modal after confirming
-        setAccountType('');  // Reset the input field
-        fetchCurrencyAccounts(); // Refresh the account list
+        setIsModalVisible(false);
+        setAccountType('');
+        fetchCurrencyAccounts();
       } else {
         Alert.alert('Error', 'Failed to create currency account.');
       }
@@ -258,7 +258,7 @@ const MainScreen = ({ route }) => {
                 {/* Cancel button */}
                 <TouchableOpacity
                   style={[styles.modalButton, styles.cancelButton]}
-                  onPress={() => setIsModalVisible(false)} // Close the modal
+                  onPress={() => setIsModalVisible(false)}
                 >
                   <Text style={styles.modalButtonText}>Cancel</Text>
                 </TouchableOpacity>
