@@ -1,15 +1,25 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, TouchableWithoutFeedback, Keyboard, ScrollView, Alert } from 'react-native';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  StyleSheet,
+  TouchableWithoutFeedback,
+  Keyboard,
+  ScrollView,
+  Alert,
+} from "react-native";
+import axios from "axios";
 
 const EditProfileScreen = ({ route, navigation }) => {
   const { user_id, baseURL } = route.params;
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [password, setPassword] = useState('');
-  const [createdOn, setCreatedOn] = useState('');
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [createdOn, setCreatedOn] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -26,7 +36,7 @@ const EditProfileScreen = ({ route, navigation }) => {
         setLoading(false);
       } catch (error) {
         console.error(error);
-        Alert.alert('Error', 'Failed to fetch user data');
+        Alert.alert("Error", "Failed to fetch user data");
         setLoading(false);
       }
     };
@@ -45,14 +55,14 @@ const EditProfileScreen = ({ route, navigation }) => {
       };
 
       await axios.put(`${baseURL}/api/users/${user_id}/`, updatedData, {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       });
 
-      Alert.alert('Success', 'Profile updated successfully!');
+      Alert.alert("Success", "Profile updated successfully!");
       navigation.goBack();
     } catch (error) {
       //console.error(error);
-      Alert.alert('Error', 'Failed to update profile');
+      Alert.alert("Error", "Failed to update profile");
     }
   };
 
@@ -68,7 +78,9 @@ const EditProfileScreen = ({ route, navigation }) => {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <ScrollView contentContainerStyle={styles.container}>
         {/* "Account Created On" text in small, subtle font in top-right */}
-        <Text style={styles.createdOnText}>Account Created On: {createdOn}</Text>
+        <Text style={styles.createdOnText}>
+          Account Created On: {createdOn}
+        </Text>
 
         <Text style={styles.header}>Edit Profile</Text>
 
@@ -116,36 +128,50 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     padding: 20,
-    backgroundColor: '#f2f2f2',
+    backgroundColor: "#f7f8fa",
   },
   header: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontSize: 28,
+    fontWeight: "700",
+    textAlign: "center",
     marginBottom: 20,
-    color: '#333',
+    color: "#333",
   },
   input: {
     height: 50,
-    backgroundColor: '#fff',
-    borderRadius: 8,
+    backgroundColor: "#fff",
+    borderRadius: 10,
     paddingHorizontal: 15,
     marginBottom: 15,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: "#ccc",
+    fontSize: 16,
+    color: "#333",
   },
   createdOnText: {
-    fontSize: 10,
-    color: '#888',
-    textAlign: 'right',
-    marginBottom: 10,
+    fontSize: 12,
+    color: "#aaa",
+    textAlign: "right",
+    marginBottom: 15,
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f2f2f2',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f7f8fa",
+  },
+  saveButton: {
+    backgroundColor: "#f27919",
+    paddingVertical: 12,
+    borderRadius: 8,
+    marginTop: 20,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  saveButtonText: {
+    fontSize: 18,
+    color: "#fff",
+    fontWeight: "600",
   },
 });
-
 export default EditProfileScreen;

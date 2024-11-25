@@ -1,6 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Alert } from 'react-native';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  ActivityIndicator,
+  Alert,
+} from "react-native";
+import axios from "axios";
 
 const HistoryScreen = ({ route }) => {
   const { user_id, baseURL } = route.params;
@@ -9,11 +16,13 @@ const HistoryScreen = ({ route }) => {
 
   const fetchHistory = async () => {
     try {
-      const response = await axios.get(`${baseURL}/api/currency-accounts/history/${user_id}/`);
+      const response = await axios.get(
+        `${baseURL}/api/currency-accounts/history/${user_id}/`
+      );
       setHistory(response.data);
     } catch (error) {
       console.error(error);
-      Alert.alert('Error', 'Failed to fetch exchange history');
+      Alert.alert("Error", "Failed to fetch exchange history");
     } finally {
       setLoading(false);
     }
@@ -38,18 +47,20 @@ const HistoryScreen = ({ route }) => {
                 <Text
                   style={[
                     styles.actionText,
-                    { color: item.action === 'income' ? '#4caf50' : '#f44336' },
+                    { color: item.action === "income" ? "#4caf50" : "#f44336" },
                   ]}
                 >
-                  {item.action === 'income' ? 'Income' : 'Expense'}
+                  {item.action === "income" ? "Income" : "Expense"}
                 </Text>
                 <Text
                   style={[
                     styles.amountText,
-                    { color: item.action === 'income' ? '#4caf50' : '#f44336' },
+                    { color: item.action === "income" ? "#4caf50" : "#f44336" },
                   ]}
                 >
-                  {item.action === 'income' ? `+${item.amount}` : `-${item.amount}`}
+                  {item.action === "income"
+                    ? `+${item.amount}`
+                    : `-${item.amount}`}
                 </Text>
               </View>
               <Text style={styles.currencyText}>Currency: {item.currency}</Text>
@@ -66,55 +77,58 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
   },
   heading: {
     fontSize: 26,
-    fontWeight: 'bold',
-    color: '#333',
-    textAlign: 'center',
+    fontWeight: "bold",
+    color: "#333",
+    textAlign: "center",
     marginBottom: 20,
   },
   noHistory: {
-    textAlign: 'center',
+    textAlign: "center",
     fontSize: 16,
-    color: 'gray',
+    color: "gray",
+    marginTop: 20,
   },
   historyContainer: {
     marginTop: 10,
   },
   historyCard: {
-    backgroundColor: '#ffffff',
+    backgroundColor: "#ffffff",
     borderRadius: 10,
     marginBottom: 15,
     padding: 15,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 5,
     shadowOffset: { width: 0, height: 2 },
     elevation: 3,
+    borderWidth: 1,
+    borderColor: "#ddd",
   },
   actionRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: 10,
   },
   actionText: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   amountText: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   currencyText: {
     fontSize: 16,
-    color: '#555',
+    color: "#555",
     marginTop: 5,
   },
   dateText: {
     fontSize: 14,
-    color: '#888',
+    color: "#888",
     marginTop: 5,
   },
 });

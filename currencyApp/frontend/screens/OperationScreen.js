@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -10,101 +10,142 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-} from 'react-native';
-import { LineChart } from 'react-native-chart-kit';
-import { Dimensions } from 'react-native';
-import axios from 'axios';
+} from "react-native";
+import { LineChart } from "react-native-chart-kit";
+import { Dimensions } from "react-native";
+import axios from "axios";
 
 const OperationScreen = ({ route, navigation }) => {
-  const { fromCurrency, toCurrency, rate, type, exchangeRate, user_id, first_name, baseURL } = route.params;
-  const [amount1, setAmount1] = useState('');
-  const [amount2, setAmount2] = useState('');
+  const {
+    fromCurrency,
+    toCurrency,
+    rate,
+    type,
+    exchangeRate,
+    user_id,
+    first_name,
+    baseURL,
+  } = route.params;
+  const [amount1, setAmount1] = useState("");
+  const [amount2, setAmount2] = useState("");
   const [chartData, setChartData] = useState(null);
 
   const handleAmount1Change = (value) => {
-    const formattedValue = value.replace(',', '.');
+    const formattedValue = value.replace(",", ".");
     setAmount1(formattedValue);
     if (formattedValue) {
-      const convertedValue = parseFloat(formattedValue) * parseFloat(exchangeRate);
+      const convertedValue =
+        parseFloat(formattedValue) * parseFloat(exchangeRate);
       setAmount2(convertedValue.toFixed(2));
     } else {
-      setAmount2('');
+      setAmount2("");
     }
   };
-  
+
   const handleAmount2Change = (value) => {
-    const formattedValue = value.replace(',', '.');
+    const formattedValue = value.replace(",", ".");
     setAmount2(formattedValue);
     if (formattedValue) {
-      const convertedValue = parseFloat(formattedValue) / parseFloat(exchangeRate);
+      const convertedValue =
+        parseFloat(formattedValue) / parseFloat(exchangeRate);
       setAmount1(convertedValue.toFixed(2));
     } else {
-      setAmount1('');
+      setAmount1("");
     }
   };
 
   const handleConversion = async () => {
     const numericAmount1 = parseFloat(amount1);
     const numericAmount2 = parseFloat(amount2);
-  
-    if (isNaN(numericAmount1) || numericAmount1 <= 0 || isNaN(numericAmount2) || numericAmount2 <= 0) {
-      Alert.alert('Invalid amount', 'Please enter valid numbers greater than 0.');
+
+    if (
+      isNaN(numericAmount1) ||
+      numericAmount1 <= 0 ||
+      isNaN(numericAmount2) ||
+      numericAmount2 <= 0
+    ) {
+      Alert.alert(
+        "Invalid amount",
+        "Please enter valid numbers greater than 0."
+      );
       return;
     }
-  
+
     try {
       const payload = {
         from_currency: fromCurrency,
         to_currency: toCurrency,
         amount: numericAmount1,
-        
-    };
-  
-      const response = await axios.post(`${baseURL}/api/currency-accounts/convert/${user_id}/`, payload, {
-        headers: { 'Content-Type': 'application/json' },
-      });
-  
+      };
+
+      const response = await axios.post(
+        `${baseURL}/api/currency-accounts/convert/${user_id}/`,
+        payload,
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
       if (response.status === 200 || response.status === 201) {
         Alert.alert(
-          'Success!',
-          `${type === 'SELL' ? 
-            `You completed an exchange from ${numericAmount1.toFixed(2)} ${fromCurrency} to ${numericAmount2.toFixed(2)} ${toCurrency}.` : 
-            `You completed an exchange from ${numericAmount2.toFixed(2)} ${fromCurrency} to ${numericAmount1.toFixed(2)} ${toCurrency}.`}`,
+          "Success!",
+          `${
+            type === "SELL"
+              ? `You completed an exchange from ${numericAmount1.toFixed(
+                  2
+                )} ${fromCurrency} to ${numericAmount2.toFixed(
+                  2
+                )} ${toCurrency}.`
+              : `You completed an exchange from ${numericAmount2.toFixed(
+                  2
+                )} ${fromCurrency} to ${numericAmount1.toFixed(
+                  2
+                )} ${toCurrency}.`
+          }`,
           [
             {
-              text: 'OK',
+              text: "OK",
               onPress: () => {
-                navigation.navigate('Main',{
+                navigation.navigate("Main", {
                   user_id: user_id,
-                  first_name: first_name
+                  first_name: first_name,
                 });
               },
             },
           ]
         );
-        
       } else {
-        Alert.alert('Conversion failed', 'Something went wrong, please try again later.');
+        Alert.alert(
+          "Conversion failed",
+          "Something went wrong, please try again later."
+        );
       }
     } catch (error) {
-      Alert.alert('Error', 'Failed to complete the conversion. Please check your inputs and try again.');
+      Alert.alert(
+        "Error",
+        "Failed to complete the conversion. Please check your inputs and try again."
+      );
     }
   };
-  
 
   const fetchChartData = async () => {
     try {
       const response = await fetch(
-        `https://api.nbp.pl/api/exchangerates/rates/c/${(type === 'SELL' ? fromCurrency : toCurrency).toLowerCase()}/last/10/?format=json`
+        `https://api.nbp.pl/api/exchangerates/rates/c/${(type === "SELL"
+          ? fromCurrency
+          : toCurrency
+        ).toLowerCase()}/last/10/?format=json`
       );
 
       if (response.ok) {
         const responseText = await response.text();
         const data = JSON.parse(responseText);
-        const values = data.rates.map((item) => (type === 'BUY' ? item.ask : item.bid));
+        const values = data.rates.map((item) =>
+          type === "BUY" ? item.ask : item.bid
+        );
 
         setChartData({
-          labels: Array(10).fill(''),
+          labels: Array(10).fill(""),
           datasets: [
             {
               data: values,
@@ -113,10 +154,10 @@ const OperationScreen = ({ route, navigation }) => {
           ],
         });
       } else {
-        console.error('API call failed with status:', response.status);
+        console.error("API call failed with status:", response.status);
       }
     } catch (error) {
-      console.error('Error fetching chart data:', error);
+      console.error("Error fetching chart data:", error);
     }
   };
 
@@ -126,25 +167,27 @@ const OperationScreen = ({ route, navigation }) => {
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={{ flex: 1 }}
     >
       <ScrollView
         contentContainerStyle={styles.scrollContainer}
         keyboardShouldPersistTaps="handled"
       >
-        <Text style={styles.title}>You are exchanging {fromCurrency} for {toCurrency}</Text>
+        <Text style={styles.title}>
+          You are exchanging {fromCurrency} for {toCurrency}
+        </Text>
         <View style={styles.container}>
           {chartData && (
             <LineChart
               data={chartData}
-              width={Dimensions.get('window').width - 20}
+              width={Dimensions.get("window").width - 20}
               height={220}
               yAxisSuffix="zł"
               chartConfig={{
-                backgroundColor: '#fff',
-                backgroundGradientFrom: '#fff',
-                backgroundGradientTo: '#fff',
+                backgroundColor: "#fff",
+                backgroundGradientFrom: "#fff",
+                backgroundGradientTo: "#fff",
                 decimalPlaces: 2,
                 color: (opacity = 1) => `rgba(0, 123, 255, ${opacity})`,
                 labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
@@ -156,11 +199,15 @@ const OperationScreen = ({ route, navigation }) => {
             />
           )}
 
-          <Text style={styles.subtitle}>{type === 'SELL' ? "You are selling:" : "You are buying:"}</Text>
+          <Text style={styles.subtitle}>
+            {type === "SELL" ? "You are selling:" : "You are buying:"}
+          </Text>
 
           <TextInput
             style={styles.input}
-            placeholder={`Enter amount in ${type === 'SELL' ? fromCurrency : toCurrency}`}
+            placeholder={`Enter amount in ${
+              type === "SELL" ? fromCurrency : toCurrency
+            }`}
             keyboardType="numeric"
             value={amount1}
             onChangeText={handleAmount1Change}
@@ -168,11 +215,15 @@ const OperationScreen = ({ route, navigation }) => {
             onSubmitEditing={() => Keyboard.dismiss()}
           />
 
-          <Text style={styles.subtitle}>{type === 'SELL' ? "You will get:" : "You will pay:"}</Text>
+          <Text style={styles.subtitle}>
+            {type === "SELL" ? "You will get:" : "You will pay:"}
+          </Text>
 
           <TextInput
             style={styles.input}
-            placeholder={`Enter amount in ${type === 'SELL' ? toCurrency : fromCurrency}`}
+            placeholder={`Enter amount in ${
+              type === "SELL" ? toCurrency : fromCurrency
+            }`}
             keyboardType="numeric"
             value={amount2}
             onChangeText={handleAmount2Change}
@@ -190,41 +241,41 @@ const OperationScreen = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     padding: 20,
   },
   container: {
-    alignItems: 'center',
-    width: '100%',
+    alignItems: "center",
+    width: "100%",
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 10,
-    textAlign: 'center',
+    textAlign: "center",
   },
   subtitle: {
     fontSize: 10,
     marginBottom: 5,
     marginTop: 20,
-    textAlign: 'left',
-    width: '80%',
+    textAlign: "left",
+    width: "80%",
   },
   input: {
-    width: '80%',
+    width: "80%",
     padding: 10,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: "#ddd",
     borderRadius: 5,
     marginBottom: 20,
     fontSize: 18,
   },
   result: {
     fontSize: 20,
-    color: '#333',
+    color: "#333",
     marginTop: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 });
 
