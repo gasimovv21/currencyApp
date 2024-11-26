@@ -33,7 +33,6 @@ const RegisterScreen = ({ route, navigation }) => {
   };
 
   const handleRegister = async () => {
-    // Validation before sending the request
     if (formData.password !== formData.confirmPassword) {
       Alert.alert("Oops!", "Passwords do not match.");
       return;

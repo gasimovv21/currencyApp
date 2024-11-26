@@ -22,7 +22,7 @@ const MainScreen = ({ route }) => {
   const [showOptions, setShowOptions] = useState(null);
   const [animation] = useState(new Animated.Value(0));
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [accountType, setAccountType] = useState("");
+  const [accountType, setAccountType] = useState("USD");
   const navigation = useNavigation();
 
   const fetchCurrencyAccounts = async () => {
@@ -108,10 +108,12 @@ const MainScreen = ({ route }) => {
   };
 
   const handleAddAccountButtonPress = () => {
+    setAccountType("USD");
     setIsModalVisible(true);
   };
 
   const handleCreateAccount = async () => {
+    console.log(typeof accountType + " " + accountType)
     try {
       const response = await axios.post(`${baseURL}/api/currency-accounts/`, {
         currency_code: accountType,
@@ -306,16 +308,8 @@ const MainScreen = ({ route }) => {
                 <Picker.Item label="Euro" value="EUR" color="black" />
                 <Picker.Item label="Japanese Yen" value="JPY" color="black" />
                 <Picker.Item label="British Pound" value="GBP" color="black" />
-                <Picker.Item
-                  label="Australian Dollar"
-                  value="AUD"
-                  color="black"
-                />
-                <Picker.Item
-                  label="Canadian Dollar"
-                  value="CAD"
-                  color="black"
-                />
+                <Picker.Item label="Australian Dollar" value="AUD" color="black" />
+                <Picker.Item label="Canadian Dollar" value="CAD" color="black"/>
                 <Picker.Item label="Swiss Franc" value="CHF" color="black" />
                 <Picker.Item label="Swedish Krona" value="SEK" color="black" />
               </Picker>
@@ -328,7 +322,6 @@ const MainScreen = ({ route }) => {
                   <Text style={styles.modalButtonText}>Create</Text>
                 </TouchableOpacity>
 
-                {/* Cancel button */}
                 <TouchableOpacity
                   style={[styles.modalButton, styles.cancelButton]}
                   onPress={() => setIsModalVisible(false)}
@@ -479,7 +472,7 @@ const styles = StyleSheet.create({
     right: 20,
     width: 60,
     height: 60,
-    backgroundColor: "#007BFF",
+    backgroundColor: "#f27919",
     borderRadius: 30,
     justifyContent: "center",
     alignItems: "center",

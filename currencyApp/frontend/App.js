@@ -14,7 +14,7 @@ import HistoryScreen from "./screens/HistoryScreen";
 const Stack = createStackNavigator();
 
 const App = () => {
-  const baseURL = "http://192.168.0.244:8000";
+  const baseURL = "http://<your_IPv4_here>:8000";
 
   return (
     <NavigationContainer>

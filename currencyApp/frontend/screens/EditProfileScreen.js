@@ -9,6 +9,7 @@ import {
   Keyboard,
   ScrollView,
   Alert,
+  TouchableOpacity,
 } from "react-native";
 import axios from "axios";
 
@@ -59,9 +60,11 @@ const EditProfileScreen = ({ route, navigation }) => {
       });
 
       Alert.alert("Success", "Profile updated successfully!");
-      navigation.goBack();
+      navigation.navigate("Main", {
+        user_id: user_id,
+        first_name: firstName,
+      });
     } catch (error) {
-      //console.error(error);
       Alert.alert("Error", "Failed to update profile");
     }
   };
@@ -77,7 +80,6 @@ const EditProfileScreen = ({ route, navigation }) => {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <ScrollView contentContainerStyle={styles.container}>
-        {/* "Account Created On" text in small, subtle font in top-right */}
         <Text style={styles.createdOnText}>
           Account Created On: {createdOn}
         </Text>
@@ -118,7 +120,11 @@ const EditProfileScreen = ({ route, navigation }) => {
           secureTextEntry
         />
 
-        <Button title="Save Changes" onPress={onSave} />
+        <TouchableOpacity style={styles.saveChangesButton} onPress={onSave}>
+          <Text style={styles.saveChangesButtonText}>
+            Save Changes
+          </Text>
+        </TouchableOpacity>
       </ScrollView>
     </TouchableWithoutFeedback>
   );
@@ -160,7 +166,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#f7f8fa",
   },
-  saveButton: {
+  saveChangesButton: {
     backgroundColor: "#f27919",
     paddingVertical: 12,
     borderRadius: 8,
@@ -168,7 +174,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  saveButtonText: {
+  saveChangesButtonText: {
     fontSize: 18,
     color: "#fff",
     fontWeight: "600",
