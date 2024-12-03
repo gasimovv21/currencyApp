@@ -169,3 +169,8 @@ CurrencyApp is a comprehensive backend application for managing users, currency 
 ## License
 
 This project is licensed under the MIT License. See the LICENSE file for more details.
+
+---
+
+### **Authors 👨💻👨💻**
+- Ahmet Eren Artam - 41155 | Recep Enes Karatekin - 40796 | Eltun Gasimov - 41160 
