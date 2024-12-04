@@ -166,6 +166,12 @@ CurrencyApp is a comprehensive backend application for managing users, currency 
 
 ---
 
+## Use Case Diagram
+
+![Show Use Case Diagram](https://github.com/gasimovv21/currencyApp/blob/main/Use%20Case%20Diagram.png)
+
+---
+
 ## License
 
 This project is licensed under the MIT License. See the LICENSE file for more details.
