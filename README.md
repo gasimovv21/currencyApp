@@ -172,12 +172,6 @@ CurrencyApp is a comprehensive backend application for managing users, currency 
 
 ---
 
-## Class Diagram
-
-![View Class Diagram](https://github.com/gasimovv21/currencyApp/blob/main/Class%20Diagram.png)
-
----
-
 ## Use Case Diagram
 
 ![View Use Case Diagram](https://github.com/gasimovv21/currencyApp/blob/main/Use%20Case%20Diagram.png)
