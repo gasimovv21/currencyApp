@@ -28,7 +28,7 @@ class UserAdmin(admin.ModelAdmin):
 
 
 class UserCurrencyAccountAdmin(admin.ModelAdmin):
-    list_display = ('account_id', 'user', 'currency_code', 'balance', 'is_active', 'updated_at')
+    list_display = ('account_id', 'user', 'currency_code', 'balance', 'is_active', 'updated_at', 'account_number')
     list_filter = ('currency_code', 'is_active', 'updated_at')
     search_fields = ('user__username', 'currency_code')
 

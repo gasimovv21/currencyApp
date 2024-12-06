@@ -1,3 +1,4 @@
+import random
 import re
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -91,6 +92,7 @@ class UserCurrencyAccount(models.Model):
     balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     is_active = models.BooleanField(default=True)
     updated_at = models.DateTimeField(auto_now=True)
+    account_number = models.CharField(max_length=15, unique=True, editable=False)
 
     class Meta:
         constraints = [
@@ -105,6 +107,21 @@ class UserCurrencyAccount(models.Model):
             raise ValidationError("Currency code must be a valid ISO 4217 code (e.g., USD, EUR, PLN).")
         if self.balance < 0:
             raise ValidationError("Balance cannot be negative.")
+
+    def save(self, *args, **kwargs):
+        if not self.account_number:
+            self.account_number = self.generate_account_number()
+        super().save(*args, **kwargs)
+
+    @staticmethod
+    def generate_account_number():
+        """
+        Generate a random account number in the format XXX-XXX-XXX.
+        """
+        while True:
+            number = '-'.join(f"{random.randint(100, 999)}" for _ in range(3))
+            if not UserCurrencyAccount.objects.filter(account_number=number).exists():
+                return number
 
 
 @receiver(post_save, sender=User)
