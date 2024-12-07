@@ -24,6 +24,7 @@ const MainScreen = ({ route }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [accountType, setAccountType] = useState("USD");
   const navigation = useNavigation();
+  const [pickedAccountNumber, setpickedAccountNumber] = useState(null);
 
   const fetchCurrencyAccounts = async () => {
     try {
@@ -113,7 +114,6 @@ const MainScreen = ({ route }) => {
   };
 
   const handleCreateAccount = async () => {
-    console.log(typeof accountType + " " + accountType)
     try {
       const response = await axios.post(`${baseURL}/api/currency-accounts/`, {
         currency_code: accountType,
@@ -140,6 +140,29 @@ const MainScreen = ({ route }) => {
     }
   };
 
+  function formattedAccountNumber(accountNumber) {
+    const parts = accountNumber.split('-');
+    parts[0] = 'XXX';
+    parts[1] = 'XXX';
+    const formattedAccountNumber = parts.join('-');
+
+    return formattedAccountNumber;
+  }
+
+  const handleAccountNumberVisibility = (accountId) => {
+     if (pickedAccountNumber !== null) {
+      if (pickedAccountNumber === accountId) {
+        setpickedAccountNumber(null);
+      } else {
+        setpickedAccountNumber(accountId);
+      }
+    } else {
+      setpickedAccountNumber(accountId);
+    }
+  };
+    
+
+
   return (
     <TouchableWithoutFeedback onPress={handleBackgroundPress}>
       <View style={styles.container}>
@@ -162,10 +185,16 @@ const MainScreen = ({ route }) => {
                 <Text style={styles.cardTitle}>
                   Account {account.currency_code}
                 </Text>
-                <Text style={styles.cardText}>
-                  Account Number:{" "}
-                  {`XXX-XXX-${Math.floor(Math.random() * 1000)}`}
-                </Text>
+                <View style={styles.accountNumberContainer}>
+                  <Text style={styles.cardText}>
+                  Account Number: {pickedAccountNumber === account.account_id ? account.account_number : formattedAccountNumber(account.account_number)}
+                  </Text>
+
+                  <TouchableWithoutFeedback onPress={() => handleAccountNumberVisibility(account.account_id)}>
+                        <Image source={pickedAccountNumber === account.account_id ? require('../assets/eye.png') : require('../assets/blind-eye.png')} style={styles.eyeIcon} />
+                  </TouchableWithoutFeedback>
+                </View>
+
                 <Text style={styles.cardText}>
                   Balance: {account.balance} {account.currency_code}
                 </Text>
@@ -388,6 +417,17 @@ const styles = StyleSheet.create({
   },
   cardText: {
     fontSize: 16,
+  },
+  accountNumberContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  eyeIcon: {
+    width: 20,
+    height: 20,
+    marginLeft: 5,
+    resizeMode: 'contain',
+    zIndex: 1,
   },
   editProfileIcon: {
     width: 30,

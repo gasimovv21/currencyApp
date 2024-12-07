@@ -10,6 +10,7 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  TouchableOpacity,
 } from "react-native";
 import { LineChart } from "react-native-chart-kit";
 import { Dimensions } from "react-native";
@@ -26,43 +27,67 @@ const OperationScreen = ({ route, navigation }) => {
     first_name,
     baseURL,
   } = route.params;
-  const [amount1, setAmount1] = useState("");
-  const [amount2, setAmount2] = useState("");
+  const [visualAmount1, setVisualAmount1] = useState("");
+  const [visualAmount2, setVisualAmount2] = useState("");
+  const [realAmount1, setRealAmount1] = useState("");
+  const [realAmount2, setRealAmount2] = useState("");
   const [chartData, setChartData] = useState(null);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleAmount1Change = (value) => {
     const formattedValue = value.replace(",", ".");
-    setAmount1(formattedValue);
+    const regex = /^\d*(\.\d{0,2})?$/;
+    if (!regex.test(formattedValue)) return;
+
+    setVisualAmount1(formattedValue);
+    if (parseFloat(formattedValue) < 1) {
+      setErrorMessage("Minimum amount is 1,00");
+    } else {
+      setErrorMessage("");
+    }
+
     if (formattedValue) {
       const convertedValue =
-        parseFloat(formattedValue) * parseFloat(exchangeRate);
-      setAmount2(convertedValue.toFixed(2));
+      parseFloat(formattedValue) * parseFloat(exchangeRate);
+      setRealAmount1(value);
+      setRealAmount2(convertedValue);
+      setVisualAmount2(convertedValue.toFixed(2));
     } else {
-      setAmount2("");
+      setVisualAmount2("");
+      setRealAmount2("");
     }
   };
 
   const handleAmount2Change = (value) => {
     const formattedValue = value.replace(",", ".");
-    setAmount2(formattedValue);
+    const regex = /^\d*(\.\d{0,2})?$/; // Allows up to 2 decimal places
+    if (!regex.test(formattedValue)) return;
+
+    setVisualAmount2(formattedValue);
     if (formattedValue) {
       const convertedValue =
         parseFloat(formattedValue) / parseFloat(exchangeRate);
-      setAmount1(convertedValue.toFixed(2));
-    } else {
-      setAmount1("");
-    }
+        setRealAmount1(convertedValue);
+        setRealAmount2(value);
+        setVisualAmount1(convertedValue.toFixed(2));
+        if (parseFloat(convertedValue.toFixed(2)) < 1) {
+          setErrorMessage("Minimum amount is 1,00");
+        } else {
+          setErrorMessage("");
+        }
+      } else {
+        setVisualAmount1("");
+        setRealAmount2("");
+      }
   };
 
   const handleConversion = async () => {
-    const numericAmount1 = parseFloat(amount1);
-    const numericAmount2 = parseFloat(amount2);
+    const numericAmount1 = parseFloat(realAmount1);
+    const numericAmount2 = parseFloat(realAmount2);
 
     if (
       isNaN(numericAmount1) ||
-      numericAmount1 <= 0 ||
-      isNaN(numericAmount2) ||
-      numericAmount2 <= 0
+      numericAmount1 <= 0
     ) {
       Alert.alert(
         "Invalid amount",
@@ -205,15 +230,17 @@ const OperationScreen = ({ route, navigation }) => {
 
           <TextInput
             style={styles.input}
-            placeholder={`Enter amount in ${
-              type === "SELL" ? fromCurrency : toCurrency
-            }`}
+            placeholder={`Enter amount in ${type === "SELL" ? fromCurrency : toCurrency}`}
             keyboardType="numeric"
-            value={amount1}
+            value={visualAmount1}
             onChangeText={handleAmount1Change}
             returnKeyType="done"
             onSubmitEditing={() => Keyboard.dismiss()}
           />
+            {errorMessage ? (
+            <Text style={styles.errorText}>{errorMessage}</Text>
+            ) : null}
+
 
           <Text style={styles.subtitle}>
             {type === "SELL" ? "You will get:" : "You will pay:"}
@@ -225,13 +252,28 @@ const OperationScreen = ({ route, navigation }) => {
               type === "SELL" ? toCurrency : fromCurrency
             }`}
             keyboardType="numeric"
-            value={amount2}
+            value={visualAmount2}
             onChangeText={handleAmount2Change}
             returnKeyType="done"
             onSubmitEditing={() => Keyboard.dismiss()}
           />
 
-          <Button title={`Convert`} onPress={handleConversion} />
+                      
+            <TouchableOpacity
+            style={[
+              styles.convertButton,
+              {
+                opacity:
+                  errorMessage !== ""
+                    ? 0.5
+                    : 1,
+              },
+            ]}
+            disabled={errorMessage !== ""}
+            onPress={handleConversion}
+          >
+            <Text style={styles.convertButtonText}>Convert</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -255,6 +297,17 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlign: "center",
   },
+  convertButton: {
+    padding: 15,
+    backgroundColor: "#f27919",
+    borderRadius: 5,
+    width: "60%",
+    alignItems: "center",
+  },
+  convertButtonText: {
+    fontSize: 18,
+    color: "white",
+  },
   subtitle: {
     fontSize: 10,
     marginBottom: 5,
@@ -270,6 +323,15 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginBottom: 20,
     fontSize: 18,
+  },
+  errorText: {
+    color: "red",
+    fontSize: 14,
+    marginTop: -15,
+    marginBottom: 10,
+    marginLeft: 40,
+    alignSelf: "flex-start",
+    width: "80%",
   },
   result: {
     fontSize: 20,
