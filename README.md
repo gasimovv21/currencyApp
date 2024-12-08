@@ -103,7 +103,17 @@ CurrencyApp is a comprehensive backend application for managing users, currency 
    ```bash
    docker-compose up --build
 
-3. **Access the API: The backend will be available at:**:
+3. **Run migrations in Docker console**:
+   ```bash
+   python manage.py migrate
+   ```
+
+4. **Create superuser for django administrations**:
+   ```bash
+   python manage.py createsuperuser
+   ```
+
+5. **Access the API: The backend will be available at:**:
    ```bash
    http://localhost:8000
 
@@ -111,7 +121,7 @@ CurrencyApp is a comprehensive backend application for managing users, currency 
 
    http://localhost:8000/api/
 
-4. **Stop the Docker containers: To stop and remove containers, networks, and volumes created by docker-compose, run:**:
+6. **Stop the Docker containers: To stop and remove containers, networks, and volumes created by docker-compose, run:**:
    ```bash
    docker-compose down --volumes
 
