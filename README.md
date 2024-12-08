@@ -35,7 +35,7 @@ CurrencyApp is a comprehensive backend application for managing users, currency 
 ## Installation and Setup
 
 ### Prerequisites
-- Python 3.8+
+- Python 3.11
 - pip
 
 ### Installation Steps
