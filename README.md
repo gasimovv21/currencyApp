@@ -40,17 +40,18 @@ CurrencyApp is a comprehensive backend application for managing users, currency 
 
 ### Installation Steps
 
-1. **Clone the repository**:
+1. **Clone the repository and create install Expo in it**:
    ```bash
-   git clone https://github.com/yourusername/currencyapp.git
-   cd currencyapp
+   git clone https://github.com/gasimovv21/currencyApp.git
+   cd currencyApp
+   npx create-expo-app@latest ./ --template blank
    ```
 
 2. **Set up and activate a virtual environment**:
    ```bash
    python -m venv venv
    source venv/bin/activate  # Linux/Mac
-   venv\Scripts\activate     # Windows
+   source venv/Scripts/Activate     # Windows
    ```
 
 3. **Install backend dependencies**:
