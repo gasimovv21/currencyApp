@@ -55,6 +55,7 @@ CurrencyApp is a comprehensive backend application for managing users, currency 
 
 3. **Install backend dependencies**:
    ```bash
+   cd currencyApp
    pip install -r requirements.txt
    ```
 
@@ -84,6 +85,35 @@ CurrencyApp is a comprehensive backend application for managing users, currency 
    ```
 
 7. **Access the API**: Open [http://<your_IPv4_here>:8000/api/](http://your_IPv4_here:8000/api/) in your browser or Postman.
+
+## Running the Backend in Docker
+
+### Requirements
+- Installed [Docker](https://www.docker.com/)
+- Installed [Docker Compose](https://docs.docker.com/compose/)
+
+### Instructions
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/gasimovv21/currencyApp
+   cd currencyApp
+
+2. **Build and run the Docker containers:**:
+   ```bash
+   docker-compose up --build
+
+3. **Access the API: The backend will be available at:**:
+   ```bash
+   http://localhost:8000
+
+   Test endpoints by navigating to:
+
+   http://localhost:8000/api/
+
+4. **Stop the Docker containers: To stop and remove containers, networks, and volumes created by docker-compose, run:**:
+   ```bash
+   docker-compose down --volumes
 
 ---
 
