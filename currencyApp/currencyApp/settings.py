@@ -54,8 +54,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'currencyApp.wsgi.application'
 
 
-### DATABASES FOR DOCKER
-### PLEASE UNCOMMENT FOR DOCKER COMPOSE UP
+### FOR DOCKER ### FOR DOCKER ### FOR DOCKER ### FOR DOCKER ### FOR DOCKER ### FOR DOCKER ### FOR DOCKER ###
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
@@ -66,6 +65,7 @@ WSGI_APPLICATION = 'currencyApp.wsgi.application'
 #         'PORT': '5432',
 #     }
 # }
+### FOR DOCKER ### FOR DOCKER ### FOR DOCKER ### FOR DOCKER ### FOR DOCKER ### FOR DOCKER ### FOR DOCKER ###
 
 
 ### COMMENT FOR DOCKER COMPOSE UP
@@ -75,6 +75,7 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+### COMMENT FOR DOCKER COMPOSE UP
 
 
 AUTH_PASSWORD_VALIDATORS = [
