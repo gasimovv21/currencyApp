@@ -110,9 +110,13 @@ CurrencyApp is a comprehensive backend application for managing users, currency 
    cd currencyApp
 
 2. **Build and run the Docker containers:**:
-- Uncomment "psycopg2-binary" in the file requirements.txt
+- Find file below and uncomment "psycopg2-binary".
     ```bash
-    psycopg2-binary==2.9.7
+    ./currencyApp/currencyApp/requirements.txt
+
+- Find file below and comment DATABASES commented for Docker and Comment default DATABASES.
+    ```bash
+    ./currencyApp/currencyApp/currencyApp/settings.py
 
 - Now ready to compose up.
    ```bash
