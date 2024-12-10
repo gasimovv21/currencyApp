@@ -58,43 +58,50 @@ CurrencyApp is a comprehensive backend application for managing users, currency 
    Remove-Item -Recurse -Force ../temp-frontend
    ```
 
-
-4. **Set up and activate a virtual environment**:
+3. **Install backend dependencies**:
    ```bash
-   python -m venv venv
-   
-   source venv/Scripts/Activate  # Windows
-   source venv/bin/activate      # Linux/Mac
-   ```
-
-6. **Install backend dependencies**:
-   ```bash
-   cd currencyApp
+   cd ..
    pip install -r requirements.txt
    ```
 
-7. **Run migrations**:
+4. **Set up and activate a virtual environment**:
+   ```bash
+   cd ..
+   python -m venv venv
+    ```
+   
+- Go to an IDE, open project folder and on terminal (bash) activate:
+   ```bash
+   source venv/Scripts/Activate  # Windows
+   source venv/bin/activate      # Linux/Mac
+   ```
+   
+6. **Run migrations**:
    ```bash
    python manage.py makemigrations
    python manage.py migrate
    ```
+- (In the case of error: try it on new bash terminal)
 
 8. **Set up the frontend**:
-   - Check your IPv4 address to set baseURL for running the server on your local network.
+- Check your IPv4 address to set baseURL for running the server on your local network.
    ```bash
    ipconfig
    ```
-   - Look for your "Wireless LAN adapter Wi-Fi" section, and note your IPv4 address (e.g., 192.168.x.x).
-   - Open the App.js file and insert your IPv4 address at the specified location on line 17.
+- Look for your "Wireless LAN adapter Wi-Fi" section, and note your IPv4 address (e.g., 192.168.x.x).
+- Open the App.js file and insert your IPv4 address at the specified location on line 17.
 
-9. **Start the Django development server**:
-   - Now, start the Django development server using your IPv4 address:
+8. **Start the Django development server and the Expo**:
+- Start API server using your IPv4 address:
    ```bash
-   cd frontend
    python manage.py runserver <your_IPv4_here>:8000
    ```
+- Start Expo Inside frontend:
+   ```bash
+   npx expo start
+   ```
 
-10. **Access the API**: Open [http://<your_IPv4_here>:8000/api/](http://your_IPv4_here:8000/api/) in your browser or Postman.
+9. **Access the API**: Open [http://<your_IPv4_here>:8000/api/](http://your_IPv4_here:8000/api/) in your browser or Postman.
 
 ## Running the Backend in Docker
 
