@@ -40,38 +40,46 @@ CurrencyApp is a comprehensive backend application for managing users, currency 
 
 ### Installation Steps
 
-1. **Clone the repository and create install Expo in it**:
+1. **Clone the repository**:
    ```bash
    git clone https://github.com/gasimovv21/currencyApp.git
-   cd currencyApp
-   npx create-expo-app@latest ./ --template blank
    ```
 
-2. **Set up and activate a virtual environment**:
+2. **Install Expo into the frontend file by saving own project files**:
+   ```bash
+   cd currencyApp/currencyApp/frontend
+   mkdir ../temp-frontend
+   move * ../temp-frontend/
+   cd ..
+   npx create-expo-app@latest frontend --template blank
+   xcopy temp-frontend\* frontend\ /E /Y
+   cd frontend
+   npm install
+   Remove-Item -Recurse -Force ../temp-frontend
+   ```
+
+
+4. **Set up and activate a virtual environment**:
    ```bash
    python -m venv venv
-   source venv/bin/activate  # Linux/Mac
-   source venv/Scripts/Activate     # Windows
+   
+   source venv/Scripts/Activate  # Windows
+   source venv/bin/activate      # Linux/Mac
    ```
 
-3. **Install backend dependencies**:
+6. **Install backend dependencies**:
    ```bash
    cd currencyApp
    pip install -r requirements.txt
    ```
 
-4. **Run migrations**:
+7. **Run migrations**:
    ```bash
    python manage.py makemigrations
    python manage.py migrate
    ```
 
-5. **Set up the frontend**:
-   ```bash
-   cd frontend
-   npm install
-   npm run build
-   ```
+8. **Set up the frontend**:
    - Check your IPv4 address to set baseURL for running the server on your local network.
    ```bash
    ipconfig
@@ -79,13 +87,14 @@ CurrencyApp is a comprehensive backend application for managing users, currency 
    - Look for your "Wireless LAN adapter Wi-Fi" section, and note your IPv4 address (e.g., 192.168.x.x).
    - Open the App.js file and insert your IPv4 address at the specified location on line 17.
 
-6. **Start the Django development server**:
+9. **Start the Django development server**:
    - Now, start the Django development server using your IPv4 address:
    ```bash
+   cd frontend
    python manage.py runserver <your_IPv4_here>:8000
    ```
 
-7. **Access the API**: Open [http://<your_IPv4_here>:8000/api/](http://your_IPv4_here:8000/api/) in your browser or Postman.
+10. **Access the API**: Open [http://<your_IPv4_here>:8000/api/](http://your_IPv4_here:8000/api/) in your browser or Postman.
 
 ## Running the Backend in Docker
 
@@ -101,20 +110,25 @@ CurrencyApp is a comprehensive backend application for managing users, currency 
    cd currencyApp
 
 2. **Build and run the Docker containers:**:
+- Uncomment "psycopg2-binary" in the file requirements.txt
+    ```bash
+    psycopg2-binary==2.9.7
+
+- Now ready to compose up.
    ```bash
    docker-compose up --build
 
-3. **Run migrations in Docker console**:
+4. **Run migrations in Docker console**:
    ```bash
    python manage.py migrate
    ```
 
-4. **Create superuser for django administrations**:
+5. **Create superuser for django administrations**:
    ```bash
    python manage.py createsuperuser
    ```
 
-5. **Access the API: The backend will be available at:**:
+6. **Access the API: The backend will be available at:**:
    ```bash
    http://localhost:8000
 
@@ -122,7 +136,7 @@ CurrencyApp is a comprehensive backend application for managing users, currency 
 
    http://localhost:8000/api/
 
-6. **Stop the Docker containers: To stop and remove containers, networks, and volumes created by docker-compose, run:**:
+7. **Stop the Docker containers: To stop and remove containers, networks, and volumes created by docker-compose, run:**:
    ```bash
    docker-compose down --volumes
 
