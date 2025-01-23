@@ -157,6 +157,9 @@ def convert_currency(user, from_currency, to_currency, amount):
 
             to_account.balance += amount
             to_account.save()
+
+            AccountHistory.objects.create(user=user, currency=from_currency, amount=amount * rate, action='expense')
+            AccountHistory.objects.create(user=user, currency=to_currency, amount=amount, action='income')
         else:
             rate = get_exchange_rate(from_currency, 'bid')
             if isinstance(rate, Response):
@@ -171,6 +174,9 @@ def convert_currency(user, from_currency, to_currency, amount):
             to_account.balance += amount * rate
             to_account.save()
 
+            AccountHistory.objects.create(user=user, currency=from_currency, amount=amount, action='expense')
+            AccountHistory.objects.create(user=user, currency=to_currency, amount=amount * rate, action='income')
+
         transaction = Transaction.objects.create(
             user=user,
             from_currency=from_currency,
@@ -178,10 +184,8 @@ def convert_currency(user, from_currency, to_currency, amount):
             amount=amount
         )
 
-        AccountHistory.objects.create(user=user, currency=from_currency, amount=amount, action='expense')
-        AccountHistory.objects.create(user=user, currency=to_currency, amount=amount * rate, action='income')
-
     return Response({"message": "Conversion successful.", "transaction_id": transaction.transaction_id}, status=status.HTTP_201_CREATED)
+
 
 
 def deposit_to_account(user, user_currency_account_code, amount):
